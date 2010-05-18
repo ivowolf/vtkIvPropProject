@@ -26,5 +26,6 @@ ENDIF(DEBUG_POSTFIX)
 #--------------------------------------------------------------------
 # Our stuff
 #
-ADD_EXECUTABLE(vtkIvPropDemo Cone.cxx vtkIvProp.h vtkIvProp.cpp)
+ADD_EXECUTABLE(vtkIvPropDemo Cone.cxx vtkIvProp.h vtkIvProp.cpp 
+  SoVTKRenderAction.h SoVTKRenderAction.cpp)
 TARGET_LINK_LIBRARIES(vtkIvPropDemo vtkRendering)
