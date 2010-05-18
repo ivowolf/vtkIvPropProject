@@ -1,0 +1,239 @@
+#Inventor V2.1 ascii
+
+### 0 ###
+SoXipBuilderNode {
+    placement	0.9 7.5 2.9 8.3
+    flags	()
+    node	    Separator {
+    }
+
+}
+#addChild "0" "1 16"
+
+### 1 ###
+SoXipBuilderNode {
+    placement	-2.1 5.4 -0.0999998 6.2
+    flags	()
+    node	    Separator {
+    }
+
+}
+#addChild "1" "2 3 4 10"
+
+### 2 ###
+SoXipBuilderNode {
+    placement	-7.2 2.7 -5.04615 3.5
+    flags	()
+    autoPanelPos	74 375 0 0
+    node	    SoXipBlendFunc {
+	fields [  ]
+    }
+
+}
+
+### 3 ###
+SoXipBuilderNode {
+    placement	-4.8 2.7 -2.30607 3.5
+    flags	()
+    autoPanelPos	145 469 0 0
+    node	    PerspectiveCamera {
+	position	0 0 5
+    }
+
+}
+
+### 4 ###
+SoXipBuilderNode {
+    placement	-3 3.3 -1 4.1
+    flags	()
+    node	    Separator {
+    }
+
+}
+#addChild "4" "5 6 8 9"
+
+### 5 ###
+SoXipBuilderNode {
+    placement	-7.8 0.9 -5.8 1.7
+    flags	()
+    autoPanelPos	337 390 0 0
+    node	    DirectionalLight {
+	color	0.2 0.7 0.7
+    }
+
+}
+
+### 6 ###
+SoXipBuilderNode {
+    placement	-5.4 -1.2 -3.4 -0.4
+    flags	SHOW_AUTOPANEL
+    autoPanelPos	317 561 0 0
+    node	    RotationXYZ {
+	angle	177.323
+    }
+
+}
+#connect "angle@6" "timeOut@7"
+
+### 7 ###
+SoXipBuilderEngine {
+    placement	-8.1 -1.2 -6.1 -0.4
+    flags	SHOW_AUTOPANEL
+    autoPanelPos	29 474 0 0
+    engine	    ElapsedTime {
+    }
+
+}
+
+### 8 ###
+SoXipBuilderNode {
+    placement	-2.7 0.3 -0.7 1.1
+    flags	SHOW_AUTOPANEL
+    autoPanelPos	50 514 0 0
+    node	    Material {
+	ambientColor	1 0 0
+	diffuseColor	1 0.1 0.1
+	specularColor	0.2 0.2 0.2
+	emissiveColor	0.1 0.1 0.1
+    }
+
+}
+
+### 9 ###
+SoXipBuilderNode {
+    placement	0.6 0.3 2.6 1.1
+    flags	()
+    node	    Cone {
+    }
+
+}
+
+### 10 ###
+SoXipBuilderNode {
+    placement	2.7 2.7 4.7 3.5
+    flags	()
+    node	    Separator {
+    }
+
+}
+#addChild "10" "11 12 13 15"
+
+### 11 ###
+SoXipBuilderNode {
+    placement	-2.1 -3.9 -0.100001 -3.1
+    flags	()
+    autoPanelPos	387 468 0 0
+    node	    DirectionalLight {
+	color	1 1 0
+	direction	0 0.25 -0.75
+    }
+
+}
+
+### 12 ###
+SoXipBuilderNode {
+    placement	0.6 -3.9 2.6 -3.1
+    flags	()
+    autoPanelPos	380 483 0 0
+    node	    Material {
+	transparency	0.5
+    }
+
+}
+
+### 13 ###
+SoXipBuilderNode {
+    placement	3 -5.4 5 -4.6
+    flags	()
+    autoPanelPos	393 616 0 0
+    node	    RotationXYZ {
+	axis	Z
+	angle	143.918
+    }
+
+}
+#connect "angle@13" "timeOut@14"
+
+### 14 ###
+SoXipBuilderEngine {
+    placement	-0.9 -5.4 1.1 -4.6
+    flags	()
+    autoPanelPos	285 165 0 0
+    engine	    ElapsedTime {
+    }
+
+}
+
+### 15 ###
+SoXipBuilderNode {
+    placement	5.1 -3.9 7.1 -3.1
+    flags	()
+    node	    Cone {
+    }
+
+}
+
+### 16 ###
+SoXipBuilderNode {
+    placement	3.6 5.7 5.6 6.5
+    flags	()
+    node	    Annotation {
+    }
+
+}
+#addChild "16" "17"
+
+### 17 ###
+SoXipBuilderNode {
+    placement	3.9 2.7 6.65844 3.5
+    flags	()
+    autoPanelPos	357 269 0 0
+    node	    SoXipViewportBorder {
+	fields [ SFFloat activeLineWidth, SFUShort activeLinePattern, SFFloat inactiveLineWidth, SFUShort inactiveLinePattern ]
+	activeLineWidth	10
+	activeLinePattern	0xf0f0
+	inactiveLineWidth	10
+	inactiveLinePattern	0xf0f
+    }
+
+}
+
+### packages ###
+SoXipBuilderPackage {
+    def	-2
+    placement	0.6 2.7 2.6 3.5
+    name	"TransparentCone"
+    members	[ 10, 11, 12, 13, 14, 15 ]
+    position	2.35 -0.8 1
+    height	16
+    inputs	[  ]
+    inputsChildIndex	[  ]
+    inputsPlacement	1.35 -7.9 3.35 -7.1
+    outputs	10
+    outputsPlacement	1.35 5.5 3.35 6.3
+}
+
+SoXipBuilderPackage {
+    def	-1
+    placement	-1.8 2.7 0.2 3.5
+    name	"OpaqueCone"
+    members	[ 4, 5, 6, 7, 8, 9 ]
+    position	-2 1.6 1
+    height	16.3171
+    inputs	[  ]
+    inputsChildIndex	[  ]
+    inputsPlacement	-3 -3.1 -1 -2.3
+    outputs	4
+    outputsPlacement	-3 5.5 -1 6.3
+}
+
+SoXipBuilderPackage {
+    def	0
+    members	[ -2, -1, 0, 1, 2, 3, 16, 17 ]
+    position	-1.66262 3.47638 1
+    height	16
+    inputs	[  ]
+    inputsChildIndex	[  ]
+    outputs	[  ]
+}
+
