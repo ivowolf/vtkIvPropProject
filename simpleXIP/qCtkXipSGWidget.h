@@ -125,4 +125,6 @@ private:
 
 		SbXipPerformanceTimer mTimeSinceLastRenderPass;
 
+ //! Idle Timer, the Open Inventor Scene Graph needs from time to time little update for itself. The Timer calls an idle function for it.
+	QTimer *mIdleTimer;
 };
