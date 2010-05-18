@@ -158,7 +158,7 @@
 	 mSceneManager = new SoSceneManager;
 	 mSceneManager->setRenderCallback(renderSceneCBFunc, this);
 	 mSceneManager->setBackgroundColor(SbColor(0.0, 0.0, 0.0));
-	 mSceneManager->getGLRenderAction()->setTransparencyType(SoGLRenderAction::BLEND);
+	 mSceneManager->getGLRenderAction()->setTransparencyType(SoGLRenderAction::DELAYED_BLEND);
 	 mSceneManager->setSceneGraph(mRoot);
 	 mSceneManager->activate();
 	 mIsSceneManagerActive = true;

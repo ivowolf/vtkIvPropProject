@@ -15,7 +15,7 @@ INCLUDE(${VTK_USE_FILE})
 #
 SET(XIP_PATH "V:/windows/x32/xip-0.2.2-install" CACHE PATH "XIP Path")
 INCLUDE_DIRECTORIES(${XIP_PATH}/include)
-LINK_DIRECTORIES(${XIP_PATH}/lib)
+LINK_DIRECTORIES(${XIP_PATH}/lib/debug)
 option(DEBUG_POSTFIX "If this option is enabled, a \"d\" will be added as debug postfix." ON)
 IF(DEBUG_POSTFIX)
   add_definitions(-D_DEBUG_POSTFIX)
@@ -28,4 +28,4 @@ ENDIF(DEBUG_POSTFIX)
 #
 ADD_EXECUTABLE(vtkIvPropDemo Cone.cxx vtkIvProp.h vtkIvProp.cpp 
   SoVTKRenderAction.h SoVTKRenderAction.cpp)
-TARGET_LINK_LIBRARIES(vtkIvPropDemo vtkRendering)
+TARGET_LINK_LIBRARIES(vtkIvPropDemo vtkRendering xipivcored xipivcoregld)

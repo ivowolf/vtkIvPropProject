@@ -15,6 +15,9 @@ PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
 
+#include <xip/inventor/coregl/SoXipGlowElement.h>
+
+
 #include "vtkIvProp.h"
 
 #include <vtkObjectFactory.h>
@@ -23,12 +26,111 @@ PURPOSE.  See the above copyright notices for more information.
 #include <vtkViewport.h>
 
 #include "SoVTKRenderAction.h"
-#include <gl/gl.h>
 #include <Inventor/SbViewportRegion.h>
+
 
 #if ( ( VTK_MAJOR_VERSION < 5 ) || ( ( VTK_MAJOR_VERSION == 5 ) && (VTK_MINOR_VERSION<2)  ) )
 #error VTK version >= 5.2 required
 #endif
+
+// ------------------------------------------------------------------
+//
+// OpenGL store/restore 
+
+struct OpenGLState
+{
+	int frameBufferBinding;
+	int	texUnitTarget[32];
+	int	texUnitBinding[32];
+	int texUnitEnabled[32];
+	int fixedFuncTexEnabled[32];
+	int	activeProgram;
+	int viewport[4];
+	int currentTexUnit;
+
+};
+
+OpenGLState oglState;
+
+void pushOglState()
+{
+	glPushAttrib(GL_ALL_ATTRIB_BITS);
+	glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
+	glGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT, &oglState.frameBufferBinding);
+	glGetIntegerv(GL_VIEWPORT, &oglState.viewport[0]);
+	glGetIntegerv(GL_ACTIVE_TEXTURE, &oglState.currentTexUnit);
+
+	for(int i = 0; i < 32; ++i)
+	{
+		oglState.texUnitTarget[i] = 0;
+		oglState.texUnitBinding[i] = 0;
+		oglState.texUnitEnabled[i] = 0;
+		oglState.fixedFuncTexEnabled[i] = 0;
+
+		glActiveTexture(GL_TEXTURE0 + i);
+
+		if(glIsEnabled(GL_TEXTURE_1D))
+			oglState.fixedFuncTexEnabled[i] = 1;
+		
+		if(glIsEnabled(GL_TEXTURE_2D))
+			oglState.fixedFuncTexEnabled[i] = 1;
+
+		if(glIsEnabled(GL_TEXTURE_3D))
+			oglState.fixedFuncTexEnabled[i] = 1;
+
+
+
+		glGetIntegerv(GL_TEXTURE_BINDING_1D, &oglState.texUnitBinding[i]);
+		if(glGetError() == GL_NO_ERROR)
+		{
+			oglState.texUnitEnabled[i] = true;
+			oglState.texUnitTarget[i] = GL_TEXTURE_1D;
+			continue;
+		}
+
+		glGetIntegerv(GL_TEXTURE_BINDING_2D, &oglState.texUnitBinding[i]);
+		if(glGetError() == GL_NO_ERROR)
+		{
+			oglState.texUnitEnabled[i] = true;
+			oglState.texUnitTarget[i] = GL_TEXTURE_2D;
+			continue;
+		}
+		
+		glGetIntegerv(GL_TEXTURE_BINDING_3D, &oglState.texUnitBinding[i]);
+		if(glGetError() == GL_NO_ERROR)
+		{
+			oglState.texUnitEnabled[i] = true;
+			oglState.texUnitTarget[i] = GL_TEXTURE_3D;
+			continue;
+		}
+	}
+
+}
+
+void popOglState()
+{
+	for(int i = 0; i < 32; ++i)
+	{
+		if(!oglState.texUnitEnabled[i])
+			continue;
+
+		glActiveTexture(GL_TEXTURE0 + i);
+		if(oglState.fixedFuncTexEnabled[i])
+			glEnable(oglState.texUnitTarget[i]);
+	
+		glBindTexture(oglState.texUnitTarget[i], oglState.texUnitBinding[i]);
+	}
+
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, oglState.frameBufferBinding);
+	glViewport(oglState.viewport[0], oglState.viewport[1], oglState.viewport[2], oglState.viewport[3]);
+	glActiveTexture(oglState.currentTexUnit);
+	glPopAttrib();
+	glPopClientAttrib();
+
+}
+
+
+
 
 vtkStandardNewMacro(vtkIvProp);
 
@@ -52,6 +154,13 @@ int vtkIvProp::RenderOpaqueGeometry(vtkViewport* viewport)
   if(scene==NULL)
     return 0;
 
+  if(!viewport->IsA("vtkOpenGLRenderer"))
+		return 0;
+
+  SoXipGLOW::init();
+
+  pushOglState();
+
   int* origin = viewport->GetOrigin();
   int* size = viewport->GetSize();
   SbVec2f ivorigin = SbVec2f(origin[0],origin[1]);
@@ -67,7 +176,11 @@ int vtkIvProp::RenderOpaqueGeometry(vtkViewport* viewport)
 
   renderAction->setVTKRenderPassType(SoVTKRenderAction::RenderOpaqueGeometry);
   renderAction->apply(scene);
+
+  popOglState();
+
   return 1; 
+
 }
 
 int vtkIvProp::RenderOverlay(vtkViewport* /*viewport*/)
