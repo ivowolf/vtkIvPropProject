@@ -8,17 +8,17 @@ SoXipBuilderNode {
     }
 
 }
-#addChild "0" "1 16"
+#addChild "0" "1 17"
 
 ### 1 ###
 SoXipBuilderNode {
-    placement	-2.1 5.4 -0.0999998 6.2
+    placement	-2.3 5.4 0.1 6.2
     flags	()
     node	    Separator {
     }
 
 }
-#addChild "1" "2 3 4 10"
+#addChild "1" "2 3 4 10 11"
 
 ### 2 ###
 SoXipBuilderNode {
@@ -37,7 +37,11 @@ SoXipBuilderNode {
     flags	()
     autoPanelPos	145 469 0 0
     node	    PerspectiveCamera {
-	position	0 0 5
+	position	0.163516 0.481941 -5.3189
+	orientation	1 0 0  3.14159
+	nearDistance	3.11574
+	farDistance	7.52205
+	focalDistance	5.3189
     }
 
 }
@@ -69,7 +73,7 @@ SoXipBuilderNode {
     flags	SHOW_AUTOPANEL
     autoPanelPos	317 561 0 0
     node	    RotationXYZ {
-	angle	177.323
+	angle	341.837
     }
 
 }
@@ -110,15 +114,55 @@ SoXipBuilderNode {
 
 ### 10 ###
 SoXipBuilderNode {
+    placement	-0.6 0.9 1.4 1.7
+    flags	()
+    autoPanelPos	818 483 0 0
+    node	    SoXipExaminer {
+	mode	PANZOOM
+	viewBoundingBox	2.22044 0 0 0
+		0 2.76996 0 0
+		0 0 2.61009 0
+		-1.11022 -1.38498 -1.30505 1
+	complexity		Complexity {
+	    value	0.5
+	    textureQuality	0.5
+	}
+
+	orthoCamera		OrthographicCamera {
+	}
+
+	perspectiveCamera		PerspectiveCamera {
+	}
+
+	borderNode		SoXipViewportBorder {
+	    fields [ SFColor activeColor, SFColor inactiveColor,  ]
+	    activeColor	0.7 0.7 0.7
+	    inactiveColor	0.7 0.7 0.7
+	}
+
+	cameraSwitch		Switch {
+	    whichChild	1
+	    OrthographicCamera {
+	    }
+	    PerspectiveCamera {
+	    }
+	}
+
+    }
+
+}
+
+### 11 ###
+SoXipBuilderNode {
     placement	2.7 2.7 4.7 3.5
     flags	()
     node	    Separator {
     }
 
 }
-#addChild "10" "11 12 13 15"
+#addChild "11" "12 13 14 16"
 
-### 11 ###
+### 12 ###
 SoXipBuilderNode {
     placement	-2.1 -3.9 -0.100001 -3.1
     flags	()
@@ -130,7 +174,7 @@ SoXipBuilderNode {
 
 }
 
-### 12 ###
+### 13 ###
 SoXipBuilderNode {
     placement	0.6 -3.9 2.6 -3.1
     flags	()
@@ -141,20 +185,20 @@ SoXipBuilderNode {
 
 }
 
-### 13 ###
+### 14 ###
 SoXipBuilderNode {
     placement	3 -5.4 5 -4.6
     flags	()
     autoPanelPos	393 616 0 0
     node	    RotationXYZ {
 	axis	Z
-	angle	143.918
+	angle	291.341
     }
 
 }
-#connect "angle@13" "timeOut@14"
+#connect "angle@14" "timeOut@15"
 
-### 14 ###
+### 15 ###
 SoXipBuilderEngine {
     placement	-0.9 -5.4 1.1 -4.6
     flags	()
@@ -164,7 +208,7 @@ SoXipBuilderEngine {
 
 }
 
-### 15 ###
+### 16 ###
 SoXipBuilderNode {
     placement	5.1 -3.9 7.1 -3.1
     flags	()
@@ -173,7 +217,7 @@ SoXipBuilderNode {
 
 }
 
-### 16 ###
+### 17 ###
 SoXipBuilderNode {
     placement	3.6 5.7 5.6 6.5
     flags	()
@@ -181,9 +225,9 @@ SoXipBuilderNode {
     }
 
 }
-#addChild "16" "17"
+#addChild "17" "18"
 
-### 17 ###
+### 18 ###
 SoXipBuilderNode {
     placement	3.9 2.7 6.65844 3.5
     flags	()
@@ -203,13 +247,13 @@ SoXipBuilderPackage {
     def	-2
     placement	0.6 2.7 2.6 3.5
     name	"TransparentCone"
-    members	[ 10, 11, 12, 13, 14, 15 ]
-    position	2.35 -0.8 1
+    members	[ 11, 12, 13, 14, 15, 16 ]
+    position	2.5 -0.8 1
     height	16
     inputs	[  ]
     inputsChildIndex	[  ]
     inputsPlacement	1.35 -7.9 3.35 -7.1
-    outputs	10
+    outputs	11
     outputsPlacement	1.35 5.5 3.35 6.3
 }
 
@@ -218,7 +262,7 @@ SoXipBuilderPackage {
     placement	-1.8 2.7 0.2 3.5
     name	"OpaqueCone"
     members	[ 4, 5, 6, 7, 8, 9 ]
-    position	-2 1.6 1
+    position	-2.75 1.6 1
     height	16.3171
     inputs	[  ]
     inputsChildIndex	[  ]
@@ -229,7 +273,8 @@ SoXipBuilderPackage {
 
 SoXipBuilderPackage {
     def	0
-    members	[ -2, -1, 0, 1, 2, 3, 16, 17 ]
+    members	[ -2, -1, 0, 1, 2, 3, 10, 17,
+		      18 ]
     position	-1.66262 3.47638 1
     height	16
     inputs	[  ]
