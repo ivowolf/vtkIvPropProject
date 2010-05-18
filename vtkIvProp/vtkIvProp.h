@@ -54,7 +54,7 @@ class /*VTK_IV_EXPORT*/ vtkIvProp : public vtkProp
     vtkIvProp();
     virtual ~vtkIvProp();
 
-    SoGLRenderAction* renderAction;
+    SoVTKRenderAction* renderAction;
     SoNode* scene;
 
 };

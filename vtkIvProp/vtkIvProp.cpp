@@ -34,7 +34,7 @@ vtkStandardNewMacro(vtkIvProp);
 
 vtkIvProp::vtkIvProp() : scene(NULL)
 {
-  renderAction = new SoGLRenderAction(SbVec2s(1,1));
+  renderAction = new SoVTKRenderAction(SbVec2s(1,1));
 }
 
 vtkIvProp::~vtkIvProp()
@@ -65,7 +65,7 @@ int vtkIvProp::RenderOpaqueGeometry(vtkViewport* viewport)
 	//SbVec2s origin = theRegion.getViewportOriginPixels();
 	//glViewport(origin[0], origin[1], size[0], size[1]);
 
-  //renderAction->setVTKRenderPassType(SoVTKRenderAction::RenderOpaqueGeometry);
+  renderAction->setVTKRenderPassType(SoVTKRenderAction::RenderOpaqueGeometry);
   renderAction->apply(scene);
   return 1; 
 }
@@ -75,8 +75,8 @@ int vtkIvProp::RenderOverlay(vtkViewport* /*viewport*/)
   if(scene==NULL)
     return 0;
 
-  //renderAction->setVTKRenderPassType(SoVTKRenderAction::RenderOverlay);
-  //renderAction->apply(scene);
+  renderAction->setVTKRenderPassType(SoVTKRenderAction::RenderOverlay);
+  renderAction->apply(scene);
   return 0;
 }
 
@@ -105,8 +105,8 @@ int vtkIvProp::RenderTranslucentPolygonalGeometry( vtkViewport * )
   if(scene==NULL)
     return 0;
 
-  //renderAction->setVTKRenderPassType(SoVTKRenderAction::RenderTranslucentPolygonalGeometry);
-  //renderAction->apply(scene);
+  renderAction->setVTKRenderPassType(SoVTKRenderAction::RenderTranslucentPolygonalGeometry);
+  renderAction->apply(scene);
   return 0;
 }
 
@@ -115,8 +115,8 @@ int vtkIvProp::RenderVolumetricGeometry( vtkViewport * )
   if(scene==NULL)
     return 0;
 
-  //renderAction->setVTKRenderPassType(SoVTKRenderAction::RenderVolumetricGeometry);
-  //renderAction->apply(scene);
+  renderAction->setVTKRenderPassType(SoVTKRenderAction::RenderVolumetricGeometry);
+  renderAction->apply(scene);
   return 0;
 }
 

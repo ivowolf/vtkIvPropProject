@@ -20,7 +20,8 @@ SoVTKRenderAction::SoVTKRenderAction(const SbViewportRegion &viewportRegion)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    //SO_ACTION_CONSTRUCTOR(SoVTKRenderAction);
+  traversalMethods = SoGLRenderAction::methods;
+  enabledElements = SoGLRenderAction::enabledElements;
 }
 
 ////////////////////////////////////////////////////////////////////////
