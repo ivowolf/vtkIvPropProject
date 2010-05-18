@@ -66,7 +66,7 @@
 		 test.append("xipivextrad.dll");
 
 		 loadIVExtensions(test);
-		 loadIvFile("../scenegraphs/quadview.iv");
+		 loadIvFile("../vtkIvPropProject/simpleXIP/TestSceneGraph_Opaque_Transparent_Annotations.iv");
 //		 loadIvFile("scenegraphs/cone.iv");
 
 		 testHack = false;

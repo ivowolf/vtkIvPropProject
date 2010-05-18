@@ -41,7 +41,6 @@
 
  #include <QtGui>
 
- #include "glwidget.h"
  #include "window.h"
  #include "QCtkXipSGWidget.h"
 
