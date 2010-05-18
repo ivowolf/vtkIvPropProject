@@ -28,6 +28,9 @@
 #include "vtkRenderer.h"
 
 #include "vtkIvProp.h"
+#include <Inventor/nodes/SoSeparator.h>
+
+bool loadIvFile(const char* ivFileName, SoSeparator* root);
 
 int main()
 {
@@ -62,6 +65,10 @@ int main()
   vtkActor *coneActor = vtkActor::New();
   coneActor->SetMapper( coneMapper );
 
+  if(!SoDB::isInitialized())
+    SoDB::init();
+  SoSeparator* root = new SoSeparator;
+  loadIvFile("../vtkIvPropProject/simpleXIP/TestSceneGraph_Opaque_Transparent_Annotations.iv", root);
   vtkIvProp * ivProp = vtkIvProp::New();
 
   //
@@ -109,4 +116,39 @@ int main()
   return 0;
 }
 
+#include <stdio.h>
+#include <string>
+ #include <Inventor/SoInput.h>
 
+
+bool loadIvFile(const char * ivFileName, SoSeparator* root)
+{
+  FILE* f = fopen(ivFileName, "r");
+  if(f==NULL)
+  {
+    return false;
+  }
+  fclose(f);
+
+  std::string ivFileNameStr(ivFileName);
+  const char *ivStr = (const char*) ivFileNameStr.c_str();
+
+  SoInput in;
+  in.openFile(ivStr); // file
+  SoSeparator *topNode = SoDB::readAll(&in);
+  if (topNode)
+  {
+    if(root)
+    {
+      root->removeAllChildren();
+      root->addChild(topNode);
+
+      return true;
+
+    }
+  }
+
+
+  return false;
+
+}
