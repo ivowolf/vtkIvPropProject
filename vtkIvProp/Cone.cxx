@@ -68,8 +68,12 @@ int main()
   if(!SoDB::isInitialized())
     SoDB::init();
   SoSeparator* root = new SoSeparator;
-  loadIvFile("../vtkIvPropProject/simpleXIP/TestSceneGraph_Opaque_Transparent_Annotations.iv", root);
+  bool ok = loadIvFile("../vtkIvPropProject/simpleXIP/TestSceneGraph_Opaque_Transparent_Annotations.iv", root);
   vtkIvProp * ivProp = vtkIvProp::New();
+  if(ok)
+  {
+    ivProp->SetSceneGraph(root);
+  }
 
   //
   // Create the Renderer and assign actors to it. A renderer is like a

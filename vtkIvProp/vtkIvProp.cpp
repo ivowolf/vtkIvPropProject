@@ -21,15 +21,21 @@ PURPOSE.  See the above copyright notices for more information.
 #include <vtkLODProp3D.h>
 #include <vtkPropAssembly.h>
 
+#include "SoVTKRenderAction.h"
+#include <gl/gl.h>
+#include <Inventor/SbViewportRegion.h>
+
 #if ( ( VTK_MAJOR_VERSION < 5 ) || ( ( VTK_MAJOR_VERSION == 5 ) && (VTK_MINOR_VERSION<2)  ) )
 #error VTK version >= 5.2 required
 #endif
 
 vtkStandardNewMacro(vtkIvProp);
 
-vtkIvProp::vtkIvProp()
+vtkIvProp::vtkIvProp() : scene(NULL)
 {
+  renderAction = new SoVTKRenderAction(SbVec2s(1,1));
 }
+
 vtkIvProp::~vtkIvProp()
 {
 }
@@ -42,11 +48,26 @@ double* vtkIvProp::GetBounds()
 
 int vtkIvProp::RenderOpaqueGeometry(vtkViewport* /*viewport*/)
 {
-  return 0; 
+  if(scene==NULL)
+    return 0;
+
+	const SbViewportRegion &theRegion = renderAction->getViewportRegion();
+	SbVec2s size   = theRegion.getViewportSizePixels();
+	SbVec2s origin = theRegion.getViewportOriginPixels();
+	glViewport(origin[0], origin[1], size[0], size[1]);
+
+  renderAction->setVTKRenderPassType(SoVTKRenderAction::RenderOpaqueGeometry);
+  renderAction->apply(scene);
+  return 1; 
 }
 
 int vtkIvProp::RenderOverlay(vtkViewport* /*viewport*/)
 {
+  if(scene==NULL)
+    return 0;
+
+  renderAction->setVTKRenderPassType(SoVTKRenderAction::RenderOverlay);
+  renderAction->apply(scene);
   return 0;
 }
 
@@ -72,10 +93,34 @@ int vtkIvProp::HasTranslucentPolygonalGeometry()
 
 int vtkIvProp::RenderTranslucentPolygonalGeometry( vtkViewport * )
 {
+  if(scene==NULL)
+    return 0;
+
+  renderAction->setVTKRenderPassType(SoVTKRenderAction::RenderTranslucentPolygonalGeometry);
+  renderAction->apply(scene);
   return 0;
 }
 
 int vtkIvProp::RenderVolumetricGeometry( vtkViewport * )
 {
+  if(scene==NULL)
+    return 0;
+
+  renderAction->setVTKRenderPassType(SoVTKRenderAction::RenderVolumetricGeometry);
+  renderAction->apply(scene);
   return 0;
+}
+
+void vtkIvProp::SetSceneGraph(SoNode *newScene)
+{
+  // ref the new scene
+  if (newScene != NULL)
+    newScene->ref();
+
+  // check if there already is a scene graph
+  if (scene != NULL)
+    scene->unref();
+
+  // now set the new scene graph
+  scene = newScene;
 }

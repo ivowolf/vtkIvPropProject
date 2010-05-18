@@ -21,11 +21,16 @@ PURPOSE.  See the above copyright notices for more information.
 
 #include "vtkProp.h"
 
+class SoVTKRenderAction;
+class SoNode;
+
 class /*VTK_IV_EXPORT*/ vtkIvProp : public vtkProp
 {
   public:
     static vtkIvProp* New();
     vtkTypeMacro(vtkIvProp,vtkProp);
+
+    void SetSceneGraph(SoNode *newScene);
 
     int RenderOpaqueGeometry(vtkViewport* viewport);
     
@@ -41,12 +46,15 @@ class /*VTK_IV_EXPORT*/ vtkIvProp : public vtkProp
  
     int HasTranslucentPolygonalGeometry();
     int RenderTranslucentPolygonalGeometry( vtkViewport *);
-    int RenderVolumetricGeometry( vtkViewport *);    
+    int RenderVolumetricGeometry( vtkViewport *);
 
   protected:
     
     vtkIvProp();
     virtual ~vtkIvProp();
+
+    SoVTKRenderAction* renderAction;
+    SoNode* scene;
 
 };
 
