@@ -21,6 +21,7 @@ PURPOSE.  See the above copyright notices for more information.
 
 #include "vtkProp.h"
 
+class SoGLRenderAction;
 class SoVTKRenderAction;
 class SoNode;
 
@@ -53,7 +54,7 @@ class /*VTK_IV_EXPORT*/ vtkIvProp : public vtkProp
     vtkIvProp();
     virtual ~vtkIvProp();
 
-    SoVTKRenderAction* renderAction;
+    SoGLRenderAction* renderAction;
     SoNode* scene;
 
 };
