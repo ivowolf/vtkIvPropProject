@@ -27,6 +27,10 @@
 
  //#include <xip/system/standard.h>
 
+ unsigned int gTimings[6];
+
+
+
 
  static void renderScene(SoSceneManager *sceneManager)
  {
@@ -70,10 +74,68 @@
 //		 loadIvFile("scenegraphs/cone.iv");
 
 		 testHack = false;
+
+		SoMFUInt32 *swapBuffersInfo = (SoMFUInt32 *) SoDB::getGlobalField("SwapBuffersInfo");
+	 		if(swapBuffersInfo)
+				swapBuffersInfo = (SoMFUInt32 *) SoDB::createGlobalField(SbName("SwapBuffersInfo"), SoMFUInt32::getClassTypeId());
 	 }
 
+	   processDelayQueue();
+
+#ifdef WIN32 // FIXME: Make it work on Unix
+  quint64 countAfterSwap;
+#endif /* WIN32 */
+  SbXipPerformanceTimer timer;
+
   renderScene(mSceneManager);
-  swapBuffers();
+
+  	float timeOfRenderPass = timer.elapsed() / 1000.0f;
+
+	SbXipPerformanceTimer swapTime;
+	swapBuffers();
+	gTimings[1] = swapTime.elapsed(); // swap time
+
+  
+  
+  
+
+#ifdef WIN32 // FIXME: Make it work on Unix
+	// Measure perf counter right after swap
+	QueryPerformanceCounter((LARGE_INTEGER*) &countAfterSwap);
+#endif /* WIN32 */
+
+	float timeSinceLastRenderPass = mTimeSinceLastRenderPass.elapsed() / 1000.0f;
+	mTimeSinceLastRenderPass.reset();
+
+	char tmp[100];
+	if (timeSinceLastRenderPass < (timeOfRenderPass + 100))
+	{
+		// continues updates, print both current render time and time since last update
+		int freq = 1000 / timeSinceLastRenderPass;
+		sprintf(tmp, timeOfRenderPass >= 100 ? "%dx%d, %0.f ms, %d Hz" : "%dx%d, %0.1f ms, %d Hz", width(), height(), timeOfRenderPass, freq);
+	}
+	else
+	{
+		// only print current render time
+		sprintf(tmp, timeOfRenderPass >= 100 ? "%dx%d, %0.f ms" : "%dx%d, %0.1f ms", width(), height(), timeOfRenderPass);
+	}
+
+	
+	// store timings
+	gTimings[0] = timer.elapsed(); // total time
+#ifdef WIN32 // FIXME: Make it work on Unix
+	*((quint64*)&gTimings[2]) = countAfterSwap; // counter after swap
+	SoMFUInt32 *swapBuffersInfo = (SoMFUInt32 *) SoDB::getGlobalField("SwapBuffersInfo");
+	//SoDebugError::postInfo("Radbuilder::renderCallback", "%d *** gTimings[2]: %d, field[2]: %d\n", (unsigned int) c4, gTimings[2], (*swapBuffersInfo)[2]);
+	if ( swapBuffersInfo )
+	{
+		swapBuffersInfo->setNum(6);
+		swapBuffersInfo->setValues(0, 6, gTimings);
+	}
+#endif /* WIN32 */
+
+	update();
+
  }
 
  void QCtkXipSGWidget::initializeGL()
@@ -122,6 +184,10 @@
 
 	 setAutoBufferSwap(false);
 	 setMouseTracking(true);
+
+	 mIdleTimer = new QTimer(this);
+	 connect(mIdleTimer, SIGNAL(timeout()), this, SLOT(doIdleProcessing()));
+	 mIdleTimer->start(40);
 
 
 
@@ -327,8 +393,8 @@
 
 	 if (mSceneManager->processEvent(&e))
 	 {
-		 //processDelayQueue();
-		 repaint();
+		// processDelayQueue();
+		 //repaint();
 		 updateCursor(true);
 	 }
 	 else
@@ -372,7 +438,7 @@
 	 if (mSceneManager->processEvent(&e))
 	 {
 		 //processDelayQueue();
-         repaint();
+         //repaint();
 		 updateCursor(true);
 	 }
 	 else
@@ -447,7 +513,7 @@
 		 if (mSceneManager->processEvent(&e))
 		 {
 			 //processDelayQueue();
-			 repaint();
+			 //repaint();
 			 updateCursor(true);
 		 }
 		 else
@@ -458,6 +524,27 @@
 
 
  }
+
+ void QCtkXipSGWidget::doIdleProcessing()
+{
+	try 
+	{
+		SoDB::getSensorManager()->processTimerQueue();
+	}
+	catch ( ... )
+	{
+	}
+
+	try 
+	{
+		SoDB::getSensorManager()->processDelayQueue(TRUE);
+	}
+	catch ( ... )
+	{
+		
+	}
+}
+
 
  void QCtkXipSGWidget::keyEvent(QKeyEvent *event)
  {
@@ -493,7 +580,8 @@
 
      if (mSceneManager->processEvent(&e))
      {
-		repaint();
+		//repaint();
+		 update();
      }
  }
 
@@ -514,7 +602,8 @@
      if (mSceneManager->processEvent(&e))
      {
          //processDelayQueue();
-         repaint();
+         //repaint();
+		 update();
          updateCursor(true);
      }
      else
@@ -531,7 +620,7 @@
  void QCtkXipSGWidget::renderSceneCBFunc(void *user, class SoSceneManager *)
  {
 	 QCtkXipSGWidget *thisPtr = (QCtkXipSGWidget*) user;
-	thisPtr->repaint();
+	thisPtr->update();
  }
 
  void QCtkXipSGWidget::resizeGL(int width, int height)

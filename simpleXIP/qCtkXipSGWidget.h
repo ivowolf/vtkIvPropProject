@@ -16,6 +16,43 @@ class SoSFInt32;
 
 
 
+class SbXipPerformanceTimer
+{
+public:
+	SbXipPerformanceTimer()
+	{
+		reset();
+		
+		#ifdef WIN32
+		QueryPerformanceFrequency((LARGE_INTEGER*) &mFreq);
+		#endif
+	}
+
+	void reset()
+	{
+		#ifdef WIN32
+		QueryPerformanceCounter((LARGE_INTEGER*) &mStartTime);
+		#endif
+	}
+	
+	// returns the number of microseconds elapsed
+	unsigned int elapsed()
+	{
+		unsigned int r = 0;
+		quint64 stop;
+
+		#ifdef WIN32
+		QueryPerformanceCounter((LARGE_INTEGER*) &stop);
+		r = ((stop - mStartTime) * 1000000) / mFreq;
+		#endif
+		
+		return r;
+	};
+
+protected:
+	quint64 mStartTime;
+	quint64 mFreq;
+};
 
 
 class QCtkXipSGWidget : public QGLWidget
@@ -54,7 +91,8 @@ public:
 	bool loadIVExtensions(const QStringList& extensionList);
 	bool loadIvFile(const QString& ivFileName);
 
-
+public slots:
+		void doIdleProcessing();
 
 protected:
 	virtual void resizeEvent(QResizeEvent * event);
@@ -84,4 +122,7 @@ protected:
 private:
 	static void renderSceneCBFunc(void *user, class SoSceneManager *);
     std::map<Qt::Key, SoKeyboardEvent::Key> mQtInventorKeyMap;
+
+		SbXipPerformanceTimer mTimeSinceLastRenderPass;
+
 };
