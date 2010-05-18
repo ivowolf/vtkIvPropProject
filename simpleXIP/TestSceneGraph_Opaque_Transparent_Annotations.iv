@@ -6,14 +6,19 @@ Separator {
 	    fields [  ]
 	}
 	PerspectiveCamera {
-	    position	0 0 5
+	    position	0.163516 0.481941 -5.3189
+	    orientation	1 0 0  3.14159
+	    nearDistance	3.11574
+	    farDistance	7.52205
+	    focalDistance	5.3189
+	    heightAngle	0.785398
 	}
 	Separator {
 	    DirectionalLight {
 		color	0.2 0.7 0.7
 	    }
 	    RotationXYZ {
-		angle	31.201 =
+		angle	348.055 =
 		    ElapsedTime {
 		    }
 		    . timeOut
@@ -28,6 +33,30 @@ Separator {
 	    Cone {
 	    }
 	}
+	SoXipExaminer {
+	    mode	PANZOOM
+	    viewBoundingBox	2.22044 0 0 0
+		    0 2.76996 0 0
+		    0 0 2.61009 0
+		    -1.11022 -1.38498 -1.30505 1
+	    complexity		    Complexity {
+		value	0.5
+		textureQuality	0.5
+	    }
+
+	    orthoCamera		    OrthographicCamera {
+	    }
+
+	    perspectiveCamera		    PerspectiveCamera {
+	    }
+
+	    borderNode		    SoXipViewportBorder {
+		fields [ SFColor activeColor, SFColor inactiveColor,  ]
+		activeColor	0.7 0.7 0.7
+		inactiveColor	0.7 0.7 0.7
+	    }
+
+	}
 	Separator {
 	    DirectionalLight {
 		color	1 1 0
@@ -38,7 +67,7 @@ Separator {
 	    }
 	    RotationXYZ {
 		axis	Z
-		angle	31.238 =
+		angle	297.663 =
 		    ElapsedTime {
 		    }
 		    . timeOut
