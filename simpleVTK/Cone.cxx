@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    $RCSfile: Cone.cxx,v $
+  Module:    Cone5.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,19 +13,20 @@
 
 =========================================================================*/
 //
-// This example creates a polygonal model of a cone, and then renders it to
-// the screen. It will rotate the cone 360 degrees and then exit. The basic
-// setup of source -> mapper -> actor -> renderer -> renderwindow is 
-// typical of most VTK programs.
-//
+// This example introduces the concepts of interaction into the
+// C++ environment. A different interaction style (than
+// the default) is defined. 
+// 
 
 // First include the required header files for the VTK classes we are using.
 #include "vtkConeSource.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkCamera.h"
 #include "vtkActor.h"
 #include "vtkRenderer.h"
+#include "vtkInteractorStyleTrackballCamera.h"
 
 int main()
 {
@@ -79,18 +80,44 @@ int main()
   renWin->AddRenderer( ren1 );
   renWin->SetSize( 300, 300 );
 
+  // 
+  // The vtkRenderWindowInteractor class watches for events (e.g., keypress,
+  // mouse) in the vtkRenderWindow. These events are translated into
+  // event invocations that VTK understands (see VTK/Common/vtkCommand.h
+  // for all events that VTK processes). Then observers of these VTK
+  // events can process them as appropriate.
+  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+  iren->SetRenderWindow(renWin);
+
   //
-  // Now we loop over 360 degreeees and render the cone each time.
+  // By default the vtkRenderWindowInteractor instantiates an instance
+  // of vtkInteractorStyle. vtkInteractorStyle translates a set of events
+  // it observes into operations on the camera, actors, and/or properties
+  // in the vtkRenderWindow associated with the vtkRenderWinodwInteractor. 
+  // Here we specify a particular interactor style.
+  vtkInteractorStyleTrackballCamera *style = 
+    vtkInteractorStyleTrackballCamera::New();
+  iren->SetInteractorStyle(style);
+
   //
-  int i;
-  for (i = 0; i < 360; ++i)
-    {
-    // render the image
-    renWin->Render();
-    // rotate the active camera by one degree
-    ren1->GetActiveCamera()->Azimuth( 1 );
-    }
+  // Unlike the previous scripts where we performed some operations and then
+  // exited, here we leave an event loop running. The user can use the mouse
+  // and keyboard to perform the operations on the scene according to the
+  // current interaction style. When the user presses the "e" key, by default
+  // an ExitEvent is invoked by the vtkRenderWindowInteractor which is caught
+  // and drops out of the event loop (triggered by the Start() method that
+  // follows.
+  //
+  iren->Initialize();
+  iren->Start();
   
+  // 
+  // Final note: recall that an observers can watch for particular events and
+  // take appropriate action. Pressing "u" in the render window causes the
+  // vtkRenderWindowInteractor to invoke a UserEvent. This can be caught to
+  // popup a GUI, etc. So the Tcl Cone5.tcl example for an idea of how this
+  // works.
+
   //
   // Free up any objects we created. All instances in VTK are deleted by
   // using the Delete() method.
@@ -100,6 +127,8 @@ int main()
   coneActor->Delete();
   ren1->Delete();
   renWin->Delete();
+  iren->Delete();
+  style->Delete();
 
   return 0;
 }
