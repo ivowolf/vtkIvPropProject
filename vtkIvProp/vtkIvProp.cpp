@@ -172,7 +172,12 @@ void pushOglState()
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_SCISSOR_TEST);
 
-	glAlphaFunc(GL_ALWAYS, 1.0f);
+	glAlphaFunc(GL_ALWAYS, 0.0f);
+
+	glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, 0);
+
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                
 
 
 

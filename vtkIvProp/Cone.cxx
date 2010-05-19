@@ -92,6 +92,16 @@ int main()
   xipIvExtensions.push_back("xipivcored.dll");
   xipIvExtensions.push_back("xipivcoregld.dll");
 
+  xipIvExtensions.push_back("xipivdicomd.dll");
+  xipIvExtensions.push_back("xipivoverlayd.dll");
+  xipIvExtensions.push_back("xipivrendererd.dll");
+  xipIvExtensions.push_back("xipivitkd.dll");
+  xipIvExtensions.push_back("xipivvtkd.dll");
+  xipIvExtensions.push_back("xipivextrad.dll");
+
+	
+		
+
   bool rv = loadIVExtensions(xipIvExtensions);
   if(!rv)
   {
@@ -103,6 +113,7 @@ int main()
   SoSeparator* root = new SoSeparator;
 
   bool ok = loadIvFile("../vtkIvPropProject/simpleXIP/TestSceneGraph_Opaque_Transparent_Annotations.iv", root);
+  //bool ok = loadIvFile("../vtkIvPropProject/simpleXIP/xipDVR.iv", root);
   vtkIvProp * ivProp = vtkIvProp::New();
   if(ok)
   {
@@ -116,8 +127,8 @@ int main()
   // color here.
   //
   vtkRenderer *ren1= vtkRenderer::New();
-  ren1->AddActor( ivProp );
   ren1->AddActor( coneActor );
+  ren1->AddActor( ivProp );
   ren1->SetBackground( 0.1, 0.2, 0.4 );
 
   //
