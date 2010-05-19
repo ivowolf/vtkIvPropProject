@@ -16,6 +16,8 @@ PURPOSE.  See the above copyright notices for more information.
 =========================================================================*/
 
 #include <Inventor/actions/SoHandleEventAction.h>
+#include <Inventor/fields/SoField.h>
+#include <Inventor/engines/SoEngine.h>
 
 #ifdef _DEBUG
 #include "windows.h" 
@@ -513,3 +515,105 @@ bool vtkIvProp::processEvent(const SoEvent *event)
     else
 	return FALSE;
 }
+
+
+
+ SoNode	  * vtkIvProp::getNode(const char * nodeName)
+ {
+	 SoNode * ret = 0;
+	 if(nodeName)
+		 ret = (SoNode*) SoNode::getByName(nodeName);
+	 return ret;
+
+ }
+
+ SoEngine  * vtkIvProp::getEngine(const char * engineName)
+ {
+	 SoEngine * ret = 0;
+	 if(engineName)
+		 ret = (SoEngine*) SoEngine::getByName(engineName);
+	 return ret;
+
+ }
+
+ SoField * vtkIvProp::getSoField(const char * fieldContainerName, const char * fieldName)
+ {
+	 SoFieldContainer * fc = SoNode::getByName(fieldContainerName);
+	 if(!fc)
+		 fc = SoEngine::getByName(fieldContainerName);
+	 if(!fc)
+		 return 0;
+
+	 SoField *field = fc->getField(fieldName);
+	 return field;
+ }
+
+ SoSField * vtkIvProp::getSField(const char * fieldContainerName, const char * fieldName)
+ {
+	SoField * field = getSoField(fieldContainerName, fieldName);
+	if(field->isOfType(SoSField::getClassTypeId()))
+		return (SoSField *) field;
+	return 0;
+ }
+
+ SoMField * vtkIvProp::getMField(const char * fieldContainerName, const char * fieldName)
+ {
+	 SoField * field = getSoField(fieldContainerName, fieldName);
+	 if(field->isOfType(SoMField::getClassTypeId()))
+		 return (SoMField *) field;
+	 return 0;
+ }
+
+
+ void vtkIvProp::setSField(const char * fieldContainerName, const char * fieldName, const char * value)
+ {
+	 if(!value || !fieldContainerName || !fieldName)
+		 return;
+
+	 SoSField *field = getSField(fieldContainerName, fieldName);
+	 if (field)
+	 {
+		 if (strlen(value) > 0)
+			 field->set(value);
+		 else
+			 field->touch();
+	 }
+ }
+
+ void vtkIvProp::setMField(const char * fieldContainerName, const char * fieldName, const char * value, int index)
+ {
+	 if(!value || !fieldContainerName || !fieldName)
+		 return;
+
+	 SoMField *field = getMField(fieldContainerName, fieldName);
+
+	if (field)
+	{
+		if (strlen(value) > 0)
+		{
+			// If this is really a MF then use the index
+			if (field->isOfType(SoMField::getClassTypeId()))
+			{		
+				// If this is really a MF then use the index
+				SoMField *mfield = (SoMField*)field;
+				mfield->set1(index, value);
+			}
+		}
+		else
+		{
+			field->touch();
+		}
+	}
+
+ }
+
+
+ void vtkIvProp::setMFieldNumElements(const char * fieldContainerName, const char * fieldName, int num)
+ {
+	 if( !fieldContainerName || !fieldName)
+		 return;
+
+	 SoMField *mfield = getMField(fieldContainerName, fieldName);
+	 if (mfield)
+			 mfield->setNum(num);
+ }
