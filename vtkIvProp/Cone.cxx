@@ -30,7 +30,16 @@
 #include "vtkIvProp.h"
 #include <Inventor/nodes/SoSeparator.h>
 
+#include <string>
+#include <vector>
+
+#include "windows.h"
+
+
 bool loadIvFile(const char* ivFileName, SoSeparator* root);
+
+bool loadIVExtensions(const std::vector<std::string>& extensions );
+
 
 int main()
 {
@@ -65,8 +74,28 @@ int main()
   vtkActor *coneActor = vtkActor::New();
   coneActor->SetMapper( coneMapper );
 
+
+
+
+
   if(!SoDB::isInitialized())
     SoDB::init();
+  
+  // load extensions
+
+  std::vector<std::string> xipIvExtensions;
+ // xipIvExtensions.push_back("xipivcommond.dll");
+  xipIvExtensions.push_back("xipivcored.dll");
+  xipIvExtensions.push_back("xipivcoregld.dll");
+
+  bool rv = loadIVExtensions(xipIvExtensions);
+  if(!rv)
+  {
+	  std::cerr << "Extension load failed";
+	  return 1;
+  }
+  
+  
   SoSeparator* root = new SoSeparator;
   bool ok = loadIvFile("../vtkIvPropProject/simpleXIP/TestSceneGraph_Opaque_Transparent_Annotations.iv", root);
   vtkIvProp * ivProp = vtkIvProp::New();
@@ -156,3 +185,19 @@ bool loadIvFile(const char * ivFileName, SoSeparator* root)
   return false;
 
 }
+
+bool loadIVExtensions(const std::vector<std::string>& extensions )
+ {
+
+
+	 for(int i = 0; i < extensions.size(); ++i)
+	 {
+		 HMODULE lib = LoadLibraryA(extensions[i].c_str());
+		 if(!lib)
+			 return false;
+		
+	 }
+
+	 return true;
+}
+
