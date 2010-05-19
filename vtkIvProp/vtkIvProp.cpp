@@ -15,6 +15,31 @@ PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
 
+#ifdef _DEBUG
+#include "windows.h" 
+#include <iostream>
+#include <sstream>
+#include <string>
+
+template<typename T>
+std::string toString(const T& v)
+{
+	std::stringstream sstr;
+	try 
+	{
+		sstr << v;	
+	}
+	catch ( ... )
+	{
+		return std::string();
+	}
+
+	return sstr.str();
+	
+}
+#endif
+
+
 #include <xip/inventor/coregl/SoXipGlowElement.h>
 
 
@@ -27,6 +52,7 @@ PURPOSE.  See the above copyright notices for more information.
 
 #include "SoVTKRenderAction.h"
 #include <Inventor/SbViewportRegion.h>
+#include <Inventor/SoDB.h>
 
 
 #if ( ( VTK_MAJOR_VERSION < 5 ) || ( ( VTK_MAJOR_VERSION == 5 ) && (VTK_MINOR_VERSION<2)  ) )
@@ -50,6 +76,13 @@ struct OpenGLState
 	int matrixMode;
 	float projMatrix[16];
 	float mvMatrix[16];
+	bool lighting;
+	bool blending;
+	bool depthTest;
+	bool light[8];
+	bool scissorTest;
+
+//TODO: check for lighting!
 
 };
 
@@ -58,8 +91,11 @@ OpenGLState oglState;
 void pushOglState()
 {
 
-	bool blendingEnabled = glIsEnabled(GL_BLEND);
-	bool depthTestEanbled = glIsEnabled(GL_DEPTH_TEST);
+	oglState.blending   = glIsEnabled(GL_BLEND);
+	oglState.depthTest = glIsEnabled(GL_DEPTH_TEST);
+	oglState.lighting  = glIsEnabled(GL_LIGHTING);
+	oglState.scissorTest = glIsEnabled(GL_SCISSOR_TEST);
+
 
 	glPushAttrib(GL_ALL_ATTRIB_BITS);
 	glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
@@ -67,7 +103,7 @@ void pushOglState()
 	glGetIntegerv(GL_VIEWPORT, &oglState.viewport[0]);
 	glGetIntegerv(GL_ACTIVE_TEXTURE, &oglState.currentTexUnit);
 
-	for(int i = 0; i < 32; ++i)
+	for(int i = 31; i >=0 ; --i)
 	{
 		oglState.texUnitTarget[i] = 0;
 		oglState.texUnitBinding[i] = 0;
@@ -112,6 +148,14 @@ void pushOglState()
 		}
 	}
 
+	for(int i = 0; i < 8; ++i)
+	{
+		oglState.light[i] = glIsEnabled(GL_LIGHT0 + i);
+		if(oglState.light[i])
+			glDisable(GL_LIGHT0 + i);
+	}
+
+
 	// get matrix state
 	glGetIntegerv(GL_MATRIX_MODE, &oglState.matrixMode);
 
@@ -122,6 +166,16 @@ void pushOglState()
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	glLoadIdentity();
+
+	glEnable(GL_BLEND);
+	glEnable(GL_LIGHTING);
+	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_SCISSOR_TEST);
+
+	glAlphaFunc(GL_ALWAYS, 1.0f);
+
+
+
 
 }
 
@@ -158,6 +212,37 @@ void popOglState()
 
 	glMatrixMode(oglState.matrixMode);
 
+	if(oglState.blending)
+		glEnable(GL_BLEND);
+	else
+		glDisable(GL_BLEND);
+
+	if(oglState.lighting)
+		glEnable(GL_LIGHTING);
+	else
+		glDisable(GL_LIGHTING);
+
+	if(oglState.depthTest)
+		glEnable(GL_DEPTH_TEST);
+	else
+		glDisable(GL_DEPTH_TEST);
+
+	if(oglState.scissorTest)
+		glEnable(GL_SCISSOR_TEST);
+	else
+		glDisable(GL_SCISSOR_TEST);
+
+	for(int i = 0; i < 8; ++i)
+	{
+		if(oglState.light[i]) 
+			glEnable(GL_LIGHT0 + i);
+		else
+			glDisable(GL_LIGHT0 + i);
+
+	}
+
+
+
 
 }
 
@@ -181,8 +266,18 @@ double* vtkIvProp::GetBounds()
   return b;
 }
 
+#define RENDER_IV_MAIN_PASS
+//#define RENDER_IV_OVERLAY_PASS
+//#define RENDER_IV_TRANSPARENT_PASS
+//#define RENDER_IV_VOLUME_PASS
+
 int vtkIvProp::RenderOpaqueGeometry(vtkViewport* viewport)
 {
+
+#ifndef RENDER_IV_MAIN_PASS
+	return 0;
+#endif
+
   if(scene==NULL)
     return 0;
 
@@ -191,16 +286,41 @@ int vtkIvProp::RenderOpaqueGeometry(vtkViewport* viewport)
 
   SoXipGLOW::init();
 
+#ifdef _DEBUG
+	GLint err = GL_NO_ERROR;
+	do {
+		err = glGetError();
+	}
+	while(err != GL_NO_ERROR); 
+#endif
+
   pushOglState();
+
 
   int* origin = viewport->GetOrigin();
   int* size = viewport->GetSize();
   SbVec2f ivorigin = SbVec2f(origin[0],origin[1]);
   SbVec2f ivsize = SbVec2f(size[0],size[1]);
   SbViewportRegion viewportRegion;
+  viewportRegion.setWindowSize(size[0], size[1]);
   viewportRegion.setViewport(ivorigin, ivsize);
   renderAction->setViewportRegion(viewportRegion);
 
+#ifdef _DEBUG
+  
+  std::string test ("Opaque pass, viewport is: "); 
+  test += toString(origin[0]);
+  test += " ";
+  test += toString(origin[1]);
+  test += " ";
+  test += toString(ivsize[0]);
+  test += " ";
+  test += toString(ivsize[1]);
+  test += "\n";
+
+
+  OutputDebugStringA(test.c_str());
+#endif
 	//const SbViewportRegion &theRegion = renderAction->getViewportRegion();
 	//SbVec2s size   = theRegion.getViewportSizePixels();
 	//SbVec2s origin = theRegion.getViewportOriginPixels();
@@ -210,6 +330,65 @@ int vtkIvProp::RenderOpaqueGeometry(vtkViewport* viewport)
   renderAction->setVTKRenderPassType(SoVTKRenderAction::RenderOpaqueGeometry);
   renderAction->apply(scene);
 
+
+// get all opengl errors from inventor
+
+ #ifdef _DEBUG
+  {
+	std::string openGLErorString;
+	GLint err = GL_NO_ERROR;
+#define ADD_TO_ERROR_STRING(errCode) case errCode: if(!openGLErorString.empty()) openGLErorString += ", "; openGLErorString +=  #errCode; break;
+	do {
+		err = glGetError();
+		switch(err)
+		{
+		case GL_NO_ERROR:
+				break;
+			default:
+				openGLErorString += "Unknown OpenGL Error" ;
+				break;
+			ADD_TO_ERROR_STRING(GL_INVALID_ENUM);
+			ADD_TO_ERROR_STRING(GL_INVALID_VALUE);
+			ADD_TO_ERROR_STRING(GL_INVALID_OPERATION);
+			ADD_TO_ERROR_STRING(GL_STACK_OVERFLOW);
+			ADD_TO_ERROR_STRING(GL_STACK_UNDERFLOW);
+			ADD_TO_ERROR_STRING(GL_OUT_OF_MEMORY);
+			ADD_TO_ERROR_STRING(GL_TABLE_TOO_LARGE);
+			
+		}
+
+	}
+	while(err != GL_NO_ERROR); 
+
+	if(!openGLErorString.empty())
+	{
+		openGLErorString += "\n";
+		 OutputDebugStringA(openGLErorString.c_str());
+	}
+		
+  }
+#endif
+
+
+
+  try 
+  {
+		SoDB::getSensorManager()->processTimerQueue();
+  }
+  catch ( ... )
+  {
+  }
+
+  try 
+  {
+		SoDB::getSensorManager()->processDelayQueue(TRUE);
+  }
+  catch ( ... )
+  {
+		
+  }
+
+
   popOglState();
 
   return 1; 
@@ -218,6 +397,11 @@ int vtkIvProp::RenderOpaqueGeometry(vtkViewport* viewport)
 
 int vtkIvProp::RenderOverlay(vtkViewport* /*viewport*/)
 {
+#ifndef RENDER_IV_OVERLAY_PASS
+	return 0;
+#endif
+
+
   if(scene==NULL)
     return 0;
 
@@ -226,7 +410,8 @@ int vtkIvProp::RenderOverlay(vtkViewport* /*viewport*/)
   renderAction->setVTKRenderPassType(SoVTKRenderAction::RenderOverlay);
   renderAction->apply(scene);
 
-    popOglState();
+  popOglState();
+  
   return 0;
 }
 
@@ -253,6 +438,11 @@ int vtkIvProp::HasTranslucentPolygonalGeometry()
 int vtkIvProp::RenderTranslucentPolygonalGeometry( vtkViewport * )
 {
 
+#ifndef RENDER_IV_TRANSPARENT_PASS
+	return 0;
+#endif
+
+
   if(scene==NULL)
     return 0;
 
@@ -269,6 +459,12 @@ int vtkIvProp::RenderTranslucentPolygonalGeometry( vtkViewport * )
 
 int vtkIvProp::RenderVolumetricGeometry( vtkViewport * )
 {
+
+#ifndef RENDER_IV_VOLUME_PASS
+	return 0;
+#endif
+
+
   if(scene==NULL)
     return 0;
 

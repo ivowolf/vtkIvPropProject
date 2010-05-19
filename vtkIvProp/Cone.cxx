@@ -27,6 +27,10 @@
 #include "vtkActor.h"
 #include "vtkRenderer.h"
 
+#include "vtkRenderWindowInteractor.h"
+#include "vtkInteractorStyleTrackballCamera.h"
+
+
 #include "vtkIvProp.h"
 #include <Inventor/nodes/SoSeparator.h>
 
@@ -97,6 +101,7 @@ int main()
   
   
   SoSeparator* root = new SoSeparator;
+
   bool ok = loadIvFile("../vtkIvPropProject/simpleXIP/TestSceneGraph_Opaque_Transparent_Annotations.iv", root);
   vtkIvProp * ivProp = vtkIvProp::New();
   if(ok)
@@ -121,20 +126,43 @@ int main()
   // set the size to be 300 pixels by 300.
   //
   vtkRenderWindow *renWin = vtkRenderWindow::New();
+  renWin->SetAlphaBitPlanes(1) ;
+  renWin->SetStencilCapable(1) ;
+  renWin->SetSize( 512, 512 );
+
+
   renWin->AddRenderer( ren1 );
-  renWin->SetSize( 300, 300 );
+
+  // 
+  // The vtkRenderWindowInteractor class watches for events (e.g., keypress,
+  // mouse) in the vtkRenderWindow. These events are translated into
+  // event invocations that VTK understands (see VTK/Common/vtkCommand.h
+  // for all events that VTK processes). Then observers of these VTK
+  // events can process them as appropriate.
+  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+  iren->SetRenderWindow(renWin);
 
   //
-  // Now we loop over 360 degreeees and render the cone each time.
+  // By default the vtkRenderWindowInteractor instantiates an instance
+  // of vtkInteractorStyle. vtkInteractorStyle translates a set of events
+  // it observes into operations on the camera, actors, and/or properties
+  // in the vtkRenderWindow associated with the vtkRenderWinodwInteractor. 
+  // Here we specify a particular interactor style.
+  vtkInteractorStyleTrackballCamera *style = 
+    vtkInteractorStyleTrackballCamera::New();
+  iren->SetInteractorStyle(style);
+
   //
-  int i;
-  for (i = 0; i < 360; ++i)
-    {
-    // render the image
-    renWin->Render();
-    // rotate the active camera by one degree
-    ren1->GetActiveCamera()->Azimuth( 1 );
-    }
+  // Unlike the previous scripts where we performed some operations and then
+  // exited, here we leave an event loop running. The user can use the mouse
+  // and keyboard to perform the operations on the scene according to the
+  // current interaction style. When the user presses the "e" key, by default
+  // an ExitEvent is invoked by the vtkRenderWindowInteractor which is caught
+  // and drops out of the event loop (triggered by the Start() method that
+  // follows.
+  //
+  iren->Initialize();
+  iren->Start();
   
   //
   // Free up any objects we created. All instances in VTK are deleted by
