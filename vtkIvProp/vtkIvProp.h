@@ -26,6 +26,8 @@ class SoVTKRenderAction;
 class SoNode;
 class SoEvent;
 class SoHandleEventAction;
+class vtkRenderWindowInteractor;
+class vtkCallbackCommand;
 
 class /*VTK_IV_EXPORT*/ vtkIvProp : public vtkProp
 {
@@ -53,6 +55,8 @@ class /*VTK_IV_EXPORT*/ vtkIvProp : public vtkProp
 
 	bool processEvent(const SoEvent *event);
 
+    virtual void SetInteractor(vtkRenderWindowInteractor* iren);
+
   protected:
     
     vtkIvProp();
@@ -61,8 +65,14 @@ class /*VTK_IV_EXPORT*/ vtkIvProp : public vtkProp
     SoVTKRenderAction* renderAction;
     SoNode* scene;
 
+    vtkRenderWindowInteractor* Interactor;
     SoHandleEventAction	*handleEventAction;
+    vtkCallbackCommand* EventCallbackCommand;
 
+    static void ProcessVtkEvents(vtkObject* object,
+                            unsigned long event,
+                            void* clientdata,
+                            void* calldata);
 };
 
 

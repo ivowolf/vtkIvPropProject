@@ -30,7 +30,6 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkInteractorStyleTrackballCamera.h"
 
-
 #include "vtkIvProp.h"
 #include <Inventor/nodes/SoSeparator.h>
 
@@ -95,8 +94,8 @@ int main()
   xipIvExtensions.push_back("xipivdicomd.dll");
   xipIvExtensions.push_back("xipivoverlayd.dll");
   xipIvExtensions.push_back("xipivrendererd.dll");
-  xipIvExtensions.push_back("xipivitkd.dll");
-  xipIvExtensions.push_back("xipivvtkd.dll");
+//  xipIvExtensions.push_back("xipivitkd.dll");
+//  xipIvExtensions.push_back("xipivvtkd.dll");
   xipIvExtensions.push_back("xipivextrad.dll");
 
 	
@@ -161,8 +160,9 @@ int main()
   // Here we specify a particular interactor style.
   vtkInteractorStyleTrackballCamera *style = 
     vtkInteractorStyleTrackballCamera::New();
-  iren->SetInteractorStyle(style);
-
+  iren->SetInteractorStyle(NULL);
+  
+  ivProp->SetInteractor(iren);
   //
   // Unlike the previous scripts where we performed some operations and then
   // exited, here we leave an event loop running. The user can use the mouse

@@ -57,7 +57,17 @@ std::string toString(const T& v)
 #include "SoVTKRenderAction.h"
 #include <Inventor/SbViewportRegion.h>
 #include <Inventor/SoDB.h>
+#include <Inventor/events/SoEvent.h>
+ #include <Inventor/events/SoMouseButtonEvent.h>
+ #include <Inventor/events/SoKeyboardEvent.h>
+ #include <Inventor/events/SoLocation2Event.h>
+#include <Inventor/fields/SoSFTime.h>
+ #include <Inventor/events/SoMotion3Event.h>				 						
+ #include <Inventor/events/SoMouseWheelEvent.h>
+ #include <Inventor/events/SoMotion3Event.h>
 
+#include <vtkRenderWindowInteractor.h>
+#include <vtkCallbackCommand.h>
 
 #if ( ( VTK_MAJOR_VERSION < 5 ) || ( ( VTK_MAJOR_VERSION == 5 ) && (VTK_MINOR_VERSION<2)  ) )
 #error VTK version >= 5.2 required
@@ -260,10 +270,14 @@ void popOglState()
 
 vtkStandardNewMacro(vtkIvProp);
 
-vtkIvProp::vtkIvProp() : scene(NULL)
+vtkIvProp::vtkIvProp() : scene(NULL), Interactor(NULL)
 {
   renderAction = new SoVTKRenderAction(SbVec2s(1,1));
   handleEventAction = new SoHandleEventAction(SbVec2s(1,1));
+  
+  this->EventCallbackCommand = vtkCallbackCommand::New();
+  this->EventCallbackCommand->SetClientData(this); 
+  this->EventCallbackCommand->SetCallback(vtkIvProp::ProcessVtkEvents);
 }
 
 vtkIvProp::~vtkIvProp()
@@ -316,6 +330,7 @@ int vtkIvProp::RenderOpaqueGeometry(vtkViewport* viewport)
   viewportRegion.setViewport(ivorigin, ivsize);
   viewportRegion.setViewportPixels(origin[0], origin[1], size[0], size[1]);
   renderAction->setViewportRegion(viewportRegion);
+  handleEventAction->setViewportRegion(viewportRegion);
 
 #ifdef _DEBUG
   
@@ -398,6 +413,24 @@ int vtkIvProp::RenderOpaqueGeometry(vtkViewport* viewport)
   {
 		
   }
+
+
+try 
+	{
+		SoDB::getSensorManager()->processTimerQueue();
+	}
+	catch ( ... )
+	{
+	}
+
+	try 
+	{
+		SoDB::getSensorManager()->processDelayQueue(TRUE);
+	}
+	catch ( ... )
+	{
+		
+	}
 
 
   popOglState();
@@ -513,3 +546,88 @@ bool vtkIvProp::processEvent(const SoEvent *event)
     else
 	return FALSE;
 }
+
+void vtkIvProp::SetInteractor(vtkRenderWindowInteractor* iren)
+{
+  if(iren!=NULL)
+  {
+    this->Interactor = iren;
+
+    float priority=0.0f;
+    iren->AddObserver(vtkCommand::MouseMoveEvent, this->EventCallbackCommand,
+                   priority);
+    iren->AddObserver(vtkCommand::LeftButtonPressEvent, this->EventCallbackCommand,
+                   priority);
+    iren->AddObserver(vtkCommand::LeftButtonReleaseEvent, this->EventCallbackCommand,
+                   priority);
+    iren->AddObserver(vtkCommand::MiddleButtonPressEvent, this->EventCallbackCommand,
+                   priority);
+    iren->AddObserver(vtkCommand::MiddleButtonReleaseEvent, this->EventCallbackCommand,
+                   priority);
+    iren->AddObserver(vtkCommand::RightButtonPressEvent, this->EventCallbackCommand,
+                   priority);
+    iren->AddObserver(vtkCommand::RightButtonReleaseEvent, this->EventCallbackCommand,
+                   priority);
+  }
+}
+
+void vtkIvProp::ProcessVtkEvents(vtkObject* vtkNotUsed(object),
+                                  unsigned long event,
+                                  void* clientdata,
+                                  void* vtkNotUsed(calldata))
+{
+  vtkIvProp* self = reinterpret_cast<vtkIvProp *>( clientdata );
+
+  SbTime time;
+  time.setToTimeOfDay();
+
+  SoEvent* e;
+  SoMouseButtonEvent mbEvent;
+  SoLocation2Event locEvent;
+
+  if(event==vtkCommand::MouseMoveEvent)
+  {
+    e=&locEvent;
+  }
+  else
+  {
+    e=&mbEvent;
+
+    switch (event)
+    {
+    default:
+    case vtkCommand::LeftButtonPressEvent:
+      mbEvent.setState(SoButtonEvent::DOWN);
+      mbEvent.setButton(SoMouseButtonEvent::BUTTON1); break;
+    case vtkCommand::LeftButtonReleaseEvent:
+      mbEvent.setState(SoButtonEvent::UP);
+      mbEvent.setButton(SoMouseButtonEvent::BUTTON1); break;
+    case vtkCommand::MiddleButtonPressEvent:
+      mbEvent.setState(SoButtonEvent::DOWN);
+      mbEvent.setButton(SoMouseButtonEvent::BUTTON2); break;
+    case vtkCommand::MiddleButtonReleaseEvent:
+      mbEvent.setState(SoButtonEvent::UP);
+      mbEvent.setButton(SoMouseButtonEvent::BUTTON2); break;
+    case vtkCommand::RightButtonPressEvent:
+      mbEvent.setState(SoButtonEvent::DOWN);
+      mbEvent.setButton(SoMouseButtonEvent::BUTTON3); break;
+    case vtkCommand::RightButtonReleaseEvent:
+      mbEvent.setState(SoButtonEvent::UP);
+      mbEvent.setButton(SoMouseButtonEvent::BUTTON3); break;
+    }
+  }
+
+  //if (event->modifiers() & Qt::ShiftModifier)
+  //  mbEvent.setShiftDown(TRUE);
+  //if (event->modifiers() & Qt::ControlModifier)
+  //  mbEvent.setCtrlDown(TRUE);
+
+  int X = self->Interactor->GetEventPosition()[0];
+  int Y = self->Interactor->GetEventPosition()[1];
+
+  e->setPosition(SbVec2s(X, Y));
+
+  self->processEvent(e);
+  self->Interactor->Render();
+}
+
