@@ -15,11 +15,15 @@ PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
 
+#include <Inventor/actions/SoHandleEventAction.h>
+
 #ifdef _DEBUG
 #include "windows.h" 
 #include <iostream>
 #include <sstream>
 #include <string>
+
+
 
 template<typename T>
 std::string toString(const T& v)
@@ -259,6 +263,7 @@ vtkStandardNewMacro(vtkIvProp);
 vtkIvProp::vtkIvProp() : scene(NULL)
 {
   renderAction = new SoVTKRenderAction(SbVec2s(1,1));
+  handleEventAction = new SoHandleEventAction(SbVec2s(1,1));
 }
 
 vtkIvProp::~vtkIvProp()
@@ -491,4 +496,20 @@ void vtkIvProp::SetSceneGraph(SoNode *newScene)
 
   // now set the new scene graph
   scene = newScene;
+}
+
+
+
+bool vtkIvProp::processEvent(const SoEvent *event)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    if ((scene != NULL) && (handleEventAction != NULL)) {    
+	handleEventAction->setEvent(event);
+	handleEventAction->apply(scene);
+	
+	return handleEventAction->isHandled();
+    }
+    else
+	return FALSE;
 }

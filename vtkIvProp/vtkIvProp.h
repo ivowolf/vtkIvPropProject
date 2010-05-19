@@ -24,6 +24,8 @@ PURPOSE.  See the above copyright notices for more information.
 class SoGLRenderAction;
 class SoVTKRenderAction;
 class SoNode;
+class SoEvent;
+class SoHandleEventAction;
 
 class /*VTK_IV_EXPORT*/ vtkIvProp : public vtkProp
 {
@@ -49,6 +51,8 @@ class /*VTK_IV_EXPORT*/ vtkIvProp : public vtkProp
     int RenderTranslucentPolygonalGeometry( vtkViewport *);
     int RenderVolumetricGeometry( vtkViewport *);
 
+	bool processEvent(const SoEvent *event);
+
   protected:
     
     vtkIvProp();
@@ -56,6 +60,8 @@ class /*VTK_IV_EXPORT*/ vtkIvProp : public vtkProp
 
     SoVTKRenderAction* renderAction;
     SoNode* scene;
+
+    SoHandleEventAction	*handleEventAction;
 
 };
 
