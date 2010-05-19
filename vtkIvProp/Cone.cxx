@@ -111,8 +111,8 @@ int main()
   
   SoSeparator* root = new SoSeparator;
 
-  bool ok = loadIvFile("../vtkIvPropProject/simpleXIP/TestSceneGraph_Opaque_Transparent_Annotations.iv", root);
-  //bool ok = loadIvFile("../vtkIvPropProject/simpleXIP/xipDVR.iv", root);
+  //bool ok = loadIvFile("../vtkIvPropProject/simpleXIP/TestSceneGraph_Opaque_Transparent_Annotations.iv", root);
+  bool ok = loadIvFile("../vtkIvPropProject/simpleXIP/xipDVR.iv", root);
   vtkIvProp * ivProp = vtkIvProp::New();
   if(ok)
   {

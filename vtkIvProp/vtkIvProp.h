@@ -28,6 +28,11 @@ class SoEvent;
 class SoHandleEventAction;
 class vtkRenderWindowInteractor;
 class vtkCallbackCommand;
+class SoNode;
+class SoEngine;
+class SoField;
+class SoSField;
+class SoMField;
 
 class /*VTK_IV_EXPORT*/ vtkIvProp : public vtkProp
 {
@@ -55,9 +60,18 @@ class /*VTK_IV_EXPORT*/ vtkIvProp : public vtkProp
 
 	bool processEvent(const SoEvent *event);
 
-    virtual void SetInteractor(vtkRenderWindowInteractor* iren);
+    virtual void SetInteractor(vtkRenderWindowInteractor* iren);	
+	void setSField(const char * fieldContainerName, const char * fieldName, const char * value);
+	void setMField(const char * fieldContainerName, const char * fieldName, const char * value, int index);
+	void setMFieldNumElements(const char * fieldContainerName, const char * fieldName, int num);
 
   protected:
+ 
+	SoNode	 * getNode(const char * nodeName);
+	SoEngine * getEngine(const char * engineName);
+	SoField  * getSoField(const char * fieldContainerName, const char * fieldName);
+	SoSField * getSField(const char * fieldContainerName, const char * fieldName);
+	SoMField * getMField(const char * fieldContainerName, const char * fieldName);
     
     vtkIvProp();
     virtual ~vtkIvProp();
