@@ -304,6 +304,7 @@ int vtkIvProp::RenderOpaqueGeometry(vtkViewport* viewport)
   SbViewportRegion viewportRegion;
   viewportRegion.setWindowSize(size[0], size[1]);
   viewportRegion.setViewport(ivorigin, ivsize);
+  viewportRegion.setViewportPixels(origin[0], origin[1], size[0], size[1]);
   renderAction->setViewportRegion(viewportRegion);
 
 #ifdef _DEBUG
