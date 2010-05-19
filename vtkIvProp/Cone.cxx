@@ -111,8 +111,8 @@ int main()
   // color here.
   //
   vtkRenderer *ren1= vtkRenderer::New();
-  ren1->AddActor( coneActor );
   ren1->AddActor( ivProp );
+  ren1->AddActor( coneActor );
   ren1->SetBackground( 0.1, 0.2, 0.4 );
 
   //

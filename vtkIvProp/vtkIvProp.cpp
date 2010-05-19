@@ -47,6 +47,9 @@ struct OpenGLState
 	int	activeProgram;
 	int viewport[4];
 	int currentTexUnit;
+	int matrixMode;
+	float projMatrix[16];
+	float mvMatrix[16];
 
 };
 
@@ -54,6 +57,10 @@ OpenGLState oglState;
 
 void pushOglState()
 {
+
+	bool blendingEnabled = glIsEnabled(GL_BLEND);
+	bool depthTestEanbled = glIsEnabled(GL_DEPTH_TEST);
+
 	glPushAttrib(GL_ALL_ATTRIB_BITS);
 	glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
 	glGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT, &oglState.frameBufferBinding);
@@ -81,7 +88,7 @@ void pushOglState()
 
 
 		glGetIntegerv(GL_TEXTURE_BINDING_1D, &oglState.texUnitBinding[i]);
-		if(glGetError() == GL_NO_ERROR)
+		if(glGetError() == GL_NO_ERROR && oglState.texUnitBinding[i])
 		{
 			oglState.texUnitEnabled[i] = true;
 			oglState.texUnitTarget[i] = GL_TEXTURE_1D;
@@ -89,7 +96,7 @@ void pushOglState()
 		}
 
 		glGetIntegerv(GL_TEXTURE_BINDING_2D, &oglState.texUnitBinding[i]);
-		if(glGetError() == GL_NO_ERROR)
+		if(glGetError() == GL_NO_ERROR && oglState.texUnitBinding[i])
 		{
 			oglState.texUnitEnabled[i] = true;
 			oglState.texUnitTarget[i] = GL_TEXTURE_2D;
@@ -97,13 +104,24 @@ void pushOglState()
 		}
 		
 		glGetIntegerv(GL_TEXTURE_BINDING_3D, &oglState.texUnitBinding[i]);
-		if(glGetError() == GL_NO_ERROR)
+		if(glGetError() == GL_NO_ERROR && oglState.texUnitBinding[i])
 		{
 			oglState.texUnitEnabled[i] = true;
 			oglState.texUnitTarget[i] = GL_TEXTURE_3D;
 			continue;
 		}
 	}
+
+	// get matrix state
+	glGetIntegerv(GL_MATRIX_MODE, &oglState.matrixMode);
+
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
 
 }
 
@@ -126,6 +144,20 @@ void popOglState()
 	glActiveTexture(oglState.currentTexUnit);
 	glPopAttrib();
 	glPopClientAttrib();
+
+
+	bool blendingEnabled = glIsEnabled(GL_BLEND);
+	bool depthTestEanbled = glIsEnabled(GL_DEPTH_TEST);
+
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+
+
+	glMatrixMode(oglState.matrixMode);
+
 
 }
 
@@ -174,6 +206,7 @@ int vtkIvProp::RenderOpaqueGeometry(vtkViewport* viewport)
 	//SbVec2s origin = theRegion.getViewportOriginPixels();
 	//glViewport(origin[0], origin[1], size[0], size[1]);
 
+
   renderAction->setVTKRenderPassType(SoVTKRenderAction::RenderOpaqueGeometry);
   renderAction->apply(scene);
 
@@ -188,8 +221,12 @@ int vtkIvProp::RenderOverlay(vtkViewport* /*viewport*/)
   if(scene==NULL)
     return 0;
 
+  pushOglState();
+
   renderAction->setVTKRenderPassType(SoVTKRenderAction::RenderOverlay);
   renderAction->apply(scene);
+
+    popOglState();
   return 0;
 }
 
@@ -215,11 +252,18 @@ int vtkIvProp::HasTranslucentPolygonalGeometry()
 
 int vtkIvProp::RenderTranslucentPolygonalGeometry( vtkViewport * )
 {
+
   if(scene==NULL)
     return 0;
 
+  pushOglState();
+
+
   renderAction->setVTKRenderPassType(SoVTKRenderAction::RenderTranslucentPolygonalGeometry);
   renderAction->apply(scene);
+
+  popOglState();
+
   return 0;
 }
 
