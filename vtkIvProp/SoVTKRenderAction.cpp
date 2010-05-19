@@ -64,7 +64,7 @@ SoVTKRenderAction::apply(SoPath *path)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-  if( (getVTKRenderPassType()==RenderOpaqueGeometry) && (isDelaying()) )
+  if( (getVTKRenderPassType()==RenderOpaqueGeometry) && (!isRenderingDelayedPaths()) )
     SoGLRenderAction::apply(path);
   else
   if( (getVTKRenderPassType()==RenderOverlay) && (isRenderingDelayedPaths()) )
@@ -86,7 +86,7 @@ SoVTKRenderAction::apply(const SoPathList &pathList, SbBool obeysRules)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-  if( (getVTKRenderPassType()==RenderOpaqueGeometry) && (isDelaying()) )
+  if( (getVTKRenderPassType()==RenderOpaqueGeometry) && (!isRenderingDelayedPaths()) )
     SoGLRenderAction::apply(pathList, obeysRules);
   else
   if( (getVTKRenderPassType()==RenderOverlay) && (isRenderingDelayedPaths()) )
