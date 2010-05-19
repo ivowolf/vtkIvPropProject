@@ -1,0 +1,74 @@
+#Inventor V2.1 ascii
+
+Separator {
+    Separator {
+	SoXipBlendFunc {
+	    fields [  ]
+	}
+	PerspectiveCamera {
+	    position	0.181368 0.321276 -5.3189
+	    orientation	1 0 0  3.14159
+	    nearDistance	3.11574
+	    farDistance	7.52205
+	    focalDistance	5.3189
+	    heightAngle	0.811524
+	}
+	SoXipExaminer {
+	    mode	PANZOOM
+	    viewBoundingBox	2.22044 0 0 0
+		    0 2.76996 0 0
+		    0 0 2.61009 0
+		    -1.11022 -1.38498 -1.30505 1
+	    complexity		    Complexity {
+		value	0.5
+		textureQuality	0.5
+	    }
+
+	    orthoCamera		    OrthographicCamera {
+	    }
+
+	    perspectiveCamera		    PerspectiveCamera {
+	    }
+
+	    borderNode		    SoXipViewportBorder {
+		fields [ SFColor activeColor, SFColor inactiveColor,  ]
+		activeColor	0.7 0.7 0.7
+		inactiveColor	0.7 0.7 0.7
+	    }
+
+	}
+	Separator {
+	    DirectionalLight {
+		on	FALSE
+		color	0.2 0.7 0.7
+		direction	0.5 -1 1
+	    }
+	    RotationXYZ {
+		angle	2.713 =
+		    ElapsedTime {
+			on	FALSE
+			pause	FALSE
+		    }
+		    . timeOut
+
+	    }
+	    Material {
+		ambientColor	1 0 0
+		diffuseColor	1 0.1 0.1
+		specularColor	0.2 0.2 0.2
+		emissiveColor	0.1 0.1 0.1
+	    }
+	    Cone {
+	    }
+	}
+    }
+    Annotation {
+	SoXipViewportBorder {
+	    fields [ SFFloat activeLineWidth, SFUShort activeLinePattern, SFFloat inactiveLineWidth, SFUShort inactiveLinePattern ]
+	    activeLineWidth	10
+	    activeLinePattern	0xf0f0
+	    inactiveLineWidth	10
+	    inactiveLinePattern	0xf0f
+	}
+    }
+}
