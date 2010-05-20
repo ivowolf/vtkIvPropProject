@@ -107,6 +107,16 @@ OpenGLState oglState;
 void pushOglState()
 {
 
+	SoXipGLOW::init();
+
+	
+	int alphaBits = 0;
+	glGetIntegerv(GL_ALPHA_BITS, &alphaBits);
+	//glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+
+	//glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 	oglState.blending   = glIsEnabled(GL_BLEND);
 	oglState.depthTest = glIsEnabled(GL_DEPTH_TEST);
 	oglState.lighting  = glIsEnabled(GL_LIGHTING);
@@ -186,14 +196,20 @@ void pushOglState()
 	glEnable(GL_BLEND);
 	glEnable(GL_LIGHTING);
 	glEnable(GL_DEPTH_TEST);
-	glDisable(GL_SCISSOR_TEST);
+	
+	
+	// disabled for inventor
+	//glDisable(GL_COLOR_MATERIAL);
+	//glDisable(GL_DEPTH_TEST);
+	//glDisable(GL_BLEND);
+	//glDisable(GL_SCISSOR_TEST);
+	//glDisable(GL_ALPHA_TEST);
+	//glDisable(GL_POLYGON_STIPPLE);
+	//glDisable(GL_LIGHTING);
+
+	//glPolygonMode(GL_FRONT_AND_BACK , GL_FILL);
 
 	glAlphaFunc(GL_ALWAYS, 0.0f);
-
-	glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, 0);
-
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-                
 
 
 
@@ -221,9 +237,6 @@ void popOglState()
 	glPopClientAttrib();
 
 
-	bool blendingEnabled = glIsEnabled(GL_BLEND);
-	bool depthTestEanbled = glIsEnabled(GL_DEPTH_TEST);
-
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 
@@ -232,6 +245,7 @@ void popOglState()
 
 
 	glMatrixMode(oglState.matrixMode);
+
 
 	if(oglState.blending)
 		glEnable(GL_BLEND);
@@ -261,9 +275,6 @@ void popOglState()
 			glDisable(GL_LIGHT0 + i);
 
 	}
-
-
-
 
 }
 
@@ -300,6 +311,50 @@ double* vtkIvProp::GetBounds()
 int vtkIvProp::RenderOpaqueGeometry(vtkViewport* viewport)
 {
 
+//#define FOO
+#ifdef FOO
+	pushOglState();
+
+	glDisable(GL_DEPTH_TEST);
+	//glDisable(GL_ALPHA_TEST);
+	//glDisable(GL_BLEND);
+
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	// quad 
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
+
+	glColor4f(1.0f, 1.0f, 0.0f, 1.0f);
+	glBegin(GL_QUADS);
+	 glVertex2f(-1,-1);
+	 glVertex2f( 1,-1);
+	 glVertex2f( 1, 1);
+	 glVertex2f(-1, 1);
+	glEnd();
+	
+
+	glColor4f(1.0f, 0.0f, 0.0f, 0.5f);
+	glBegin(GL_QUADS);
+	 glVertex2f(-0.5,-0.5);
+	 glVertex2f( 0.5,-0.5);
+	 glVertex2f( 0.5, 0.5);
+	 glVertex2f(-0.5, 0.5);
+	glEnd();
+
+	popOglState();
+
+	return 1;
+
+#else
+
 #ifndef RENDER_IV_MAIN_PASS
 	return 0;
 #endif
@@ -310,17 +365,24 @@ int vtkIvProp::RenderOpaqueGeometry(vtkViewport* viewport)
   if(!viewport->IsA("vtkOpenGLRenderer"))
 		return 0;
 
-  SoXipGLOW::init();
-
-#ifdef _DEBUG
-	GLint err = GL_NO_ERROR;
-	do {
-		err = glGetError();
-	}
-	while(err != GL_NO_ERROR); 
-#endif
 
   pushOglState();
+
+  //glEnable(GL_DEPTH_TEST);
+  //glEnable(GL_BLEND);
+  //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  //glEnable(GL_LIGHTING);
+  //glDisable(GL_POLYGON_STIPPLE);
+  //glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE);
+  //glDisable(GL_ALPHA_TEST);
+  //glDisable(GL_BLEND);
+
+  //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  //float lightPos[4] = {0.0f, 0.0f, 1.0f, 0.0f};
+  //float lightModelAmbient[4] = { 0.2f, 0.2f, 0.2f, 0.2f};
+  //glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
+  //glLightModelfv(GL_LIGHT_MODEL_AMBIENT, lightModelAmbient);
 
 
   int* origin = viewport->GetOrigin();
@@ -332,112 +394,29 @@ int vtkIvProp::RenderOpaqueGeometry(vtkViewport* viewport)
   viewportRegion.setViewport(ivorigin, ivsize);
   viewportRegion.setViewportPixels(origin[0], origin[1], size[0], size[1]);
   renderAction->setViewportRegion(viewportRegion);
+  renderAction->setTransparencyType(SoGLRenderAction::BLEND);
   handleEventAction->setViewportRegion(viewportRegion);
 
+
 #ifdef _DEBUG
-  
-  std::string test ("Opaque pass, viewport is: "); 
-  test += toString(origin[0]);
-  test += " ";
-  test += toString(origin[1]);
-  test += " ";
-  test += toString(ivsize[0]);
-  test += " ";
-  test += toString(ivsize[1]);
-  test += "\n";
-
-
-  OutputDebugStringA(test.c_str());
-#endif
-	//const SbViewportRegion &theRegion = renderAction->getViewportRegion();
-	//SbVec2s size   = theRegion.getViewportSizePixels();
-	//SbVec2s origin = theRegion.getViewportOriginPixels();
-	//glViewport(origin[0], origin[1], size[0], size[1]);
-
+  std::string debugStringA("Entering Inventor Rendering Control");
+  if(glStringMarkerGREMEDY)
+	glStringMarkerGREMEDY(debugStringA.length(), debugStringA.c_str());
+#endif 
 
   renderAction->setVTKRenderPassType(SoVTKRenderAction::RenderOpaqueGeometry);
   renderAction->apply(scene);
 
-
-// get all opengl errors from inventor
-
- #ifdef _DEBUG
-  {
-	std::string openGLErorString;
-	GLint err = GL_NO_ERROR;
-#define ADD_TO_ERROR_STRING(errCode) case errCode: if(!openGLErorString.empty()) openGLErorString += ", "; openGLErorString +=  #errCode; break;
-	do {
-		err = glGetError();
-		switch(err)
-		{
-		case GL_NO_ERROR:
-				break;
-			default:
-				openGLErorString += "Unknown OpenGL Error" ;
-				break;
-			ADD_TO_ERROR_STRING(GL_INVALID_ENUM);
-			ADD_TO_ERROR_STRING(GL_INVALID_VALUE);
-			ADD_TO_ERROR_STRING(GL_INVALID_OPERATION);
-			ADD_TO_ERROR_STRING(GL_STACK_OVERFLOW);
-			ADD_TO_ERROR_STRING(GL_STACK_UNDERFLOW);
-			ADD_TO_ERROR_STRING(GL_OUT_OF_MEMORY);
-			ADD_TO_ERROR_STRING(GL_TABLE_TOO_LARGE);
-			
-		}
-
-	}
-	while(err != GL_NO_ERROR); 
-
-	if(!openGLErorString.empty())
-	{
-		openGLErorString += "\n";
-		 OutputDebugStringA(openGLErorString.c_str());
-	}
-		
-  }
+#ifdef _DEBUG
+  std::string debugStringB("Exiting Inventor Rendering Control");
+  if(glStringMarkerGREMEDY)
+	glStringMarkerGREMEDY(debugStringB.length(), debugStringB.c_str());
 #endif
-
-
-
-  try 
-  {
-		SoDB::getSensorManager()->processTimerQueue();
-  }
-  catch ( ... )
-  {
-  }
-
-  try 
-  {
-		SoDB::getSensorManager()->processDelayQueue(TRUE);
-  }
-  catch ( ... )
-  {
-		
-  }
-
-
-try 
-	{
-		SoDB::getSensorManager()->processTimerQueue();
-	}
-	catch ( ... )
-	{
-	}
-
-	try 
-	{
-		SoDB::getSensorManager()->processDelayQueue(TRUE);
-	}
-	catch ( ... )
-	{
-		
-	}
-
 
   popOglState();
 
   return 1; 
+#endif
 
 }
 
@@ -459,6 +438,7 @@ int vtkIvProp::RenderOverlay(vtkViewport* /*viewport*/)
   popOglState();
   
   return 0;
+
 }
 
 void vtkIvProp::ReleaseGraphicsResources(vtkWindow* window)
@@ -478,10 +458,10 @@ vtkAssemblyPath* vtkIvProp::GetNextPath()
 
 int vtkIvProp::HasTranslucentPolygonalGeometry()
 {
-  return 0;
+  return 1;
 }
 
-int vtkIvProp::RenderTranslucentPolygonalGeometry( vtkViewport * )
+int vtkIvProp::RenderTranslucentPolygonalGeometry( vtkViewport * viewport)
 {
 
 #ifndef RENDER_IV_TRANSPARENT_PASS
@@ -501,6 +481,7 @@ int vtkIvProp::RenderTranslucentPolygonalGeometry( vtkViewport * )
   popOglState();
 
   return 0;
+
 }
 
 int vtkIvProp::RenderVolumetricGeometry( vtkViewport * )
