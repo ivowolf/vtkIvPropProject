@@ -203,12 +203,24 @@ void pushOglState()
   //glDisable(GL_COLOR_MATERIAL);
   //glDisable(GL_DEPTH_TEST);
   //glDisable(GL_BLEND);
-  //glDisable(GL_SCISSOR_TEST);
+  glDisable(GL_SCISSOR_TEST);
   //glDisable(GL_ALPHA_TEST);
   //glDisable(GL_POLYGON_STIPPLE);
   //glDisable(GL_LIGHTING);
 
-  //glPolygonMode(GL_FRONT_AND_BACK , GL_FILL);
+
+  float ambient[4] = {0.2f, 0.2f, 0.2f, 1.0};
+  float diffuse[4] = {0.8f, 0.8f, 0.8f, 1.0};
+  glMaterialfv(GL_FRONT, GL_AMBIENT, ambient);
+  glMaterialfv(GL_BACK, GL_AMBIENT, ambient);
+  glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse);
+  glMaterialfv(GL_BACK, GL_DIFFUSE, diffuse);
+
+  glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
+
+  glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE);
+
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   glAlphaFunc(GL_ALWAYS, 0.0f);
 
@@ -287,6 +299,8 @@ vtkStandardNewMacro(vtkIvProp);
 vtkIvProp::vtkIvProp() : scene(NULL), Interactor(NULL)
 {
   renderAction = new SoVTKRenderAction(SbVec2s(1,1));
+
+
   handleEventAction = new SoHandleEventAction(SbVec2s(1,1));
   this->TimerId = 1;
 
@@ -311,56 +325,14 @@ double* vtkIvProp::GetBounds()
 }
 
 #define RENDER_IV_MAIN_PASS
-//#define RENDER_IV_OVERLAY_PASS
+#define RENDER_IV_OVERLAY_PASS
 //#define RENDER_IV_TRANSPARENT_PASS
 //#define RENDER_IV_VOLUME_PASS
 
 int vtkIvProp::RenderOpaqueGeometry(vtkViewport* viewport)
 {
 
-  //#define FOO
-#ifdef FOO
-  pushOglState();
 
-  glDisable(GL_DEPTH_TEST);
-  //glDisable(GL_ALPHA_TEST);
-  //glDisable(GL_BLEND);
-
-
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-  // quad 
-
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
-
-
-  glColor4f(1.0f, 1.0f, 0.0f, 1.0f);
-  glBegin(GL_QUADS);
-  glVertex2f(-1,-1);
-  glVertex2f( 1,-1);
-  glVertex2f( 1, 1);
-  glVertex2f(-1, 1);
-  glEnd();
-
-
-  glColor4f(1.0f, 0.0f, 0.0f, 0.5f);
-  glBegin(GL_QUADS);
-  glVertex2f(-0.5,-0.5);
-  glVertex2f( 0.5,-0.5);
-  glVertex2f( 0.5, 0.5);
-  glVertex2f(-0.5, 0.5);
-  glEnd();
-
-  popOglState();
-
-  return 1;
-
-#else
 
 #ifndef RENDER_IV_MAIN_PASS
   return 0;
@@ -372,24 +344,15 @@ int vtkIvProp::RenderOpaqueGeometry(vtkViewport* viewport)
   if(!viewport->IsA("vtkOpenGLRenderer"))
     return 0;
 
+#ifdef _DEBUG
+  std::string debugStringA("Before push OpenGL state");
+  if(glStringMarkerGREMEDY)
+    glStringMarkerGREMEDY(debugStringA.length(), debugStringA.c_str());
+#endif 
+
 
   pushOglState();
 
-  //glEnable(GL_DEPTH_TEST);
-  //glEnable(GL_BLEND);
-  //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  //glEnable(GL_LIGHTING);
-  //glDisable(GL_POLYGON_STIPPLE);
-  //glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE);
-  //glDisable(GL_ALPHA_TEST);
-  //glDisable(GL_BLEND);
-
-  //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-  //float lightPos[4] = {0.0f, 0.0f, 1.0f, 0.0f};
-  //float lightModelAmbient[4] = { 0.2f, 0.2f, 0.2f, 0.2f};
-  //glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
-  //glLightModelfv(GL_LIGHT_MODEL_AMBIENT, lightModelAmbient);
 
 
   int* origin = viewport->GetOrigin();
@@ -406,9 +369,9 @@ int vtkIvProp::RenderOpaqueGeometry(vtkViewport* viewport)
 
 
 #ifdef _DEBUG
-  std::string debugStringA("Entering Inventor Rendering Control");
+  std::string debugStringPush("Entering Inventor Rendering Control");
   if(glStringMarkerGREMEDY)
-    glStringMarkerGREMEDY(debugStringA.length(), debugStringA.c_str());
+    glStringMarkerGREMEDY(debugStringPush.length(), debugStringPush.c_str());
 #endif 
 
   renderAction->setVTKRenderPassType(SoVTKRenderAction::RenderOpaqueGeometry);
@@ -423,8 +386,15 @@ int vtkIvProp::RenderOpaqueGeometry(vtkViewport* viewport)
 
   popOglState();
 
+ #ifdef _DEBUG
+  std::string debugStringPop("After pop OpenGL state");
+  if(glStringMarkerGREMEDY)
+    glStringMarkerGREMEDY(debugStringPop.length(), debugStringPop.c_str());
+#endif 
+
+
   return 1; 
-#endif
+
 
 }
 
