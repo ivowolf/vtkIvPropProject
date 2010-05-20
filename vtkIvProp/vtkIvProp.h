@@ -87,6 +87,7 @@ class /*VTK_IV_EXPORT*/ vtkIvProp : public vtkProp
                             unsigned long event,
                             void* clientdata,
                             void* calldata);
+    int TimerId; //keep track of the timers that are created/destroyed
 };
 
 

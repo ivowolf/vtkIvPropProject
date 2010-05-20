@@ -68,6 +68,7 @@ std::string toString(const T& v)
  #include <Inventor/events/SoMouseWheelEvent.h>
  #include <Inventor/events/SoMotion3Event.h>
 
+#include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkCallbackCommand.h>
 
@@ -276,6 +277,7 @@ vtkIvProp::vtkIvProp() : scene(NULL), Interactor(NULL)
 {
   renderAction = new SoVTKRenderAction(SbVec2s(1,1));
   handleEventAction = new SoHandleEventAction(SbVec2s(1,1));
+  this->TimerId = 1;
   
   this->EventCallbackCommand = vtkCallbackCommand::New();
   this->EventCallbackCommand->SetClientData(this); 
@@ -284,6 +286,11 @@ vtkIvProp::vtkIvProp() : scene(NULL), Interactor(NULL)
 
 vtkIvProp::~vtkIvProp()
 {
+    if(this->Interactor)
+      {
+      this->Interactor->RemoveObserver(this->EventCallbackCommand);
+      this->Interactor->DestroyTimer(this->TimerId);
+      }
 }
 
 double* vtkIvProp::GetBounds()
@@ -397,42 +404,6 @@ int vtkIvProp::RenderOpaqueGeometry(vtkViewport* viewport)
   }
 #endif
 
-
-
-  try 
-  {
-		SoDB::getSensorManager()->processTimerQueue();
-  }
-  catch ( ... )
-  {
-  }
-
-  try 
-  {
-		SoDB::getSensorManager()->processDelayQueue(TRUE);
-  }
-  catch ( ... )
-  {
-		
-  }
-
-
-try 
-	{
-		SoDB::getSensorManager()->processTimerQueue();
-	}
-	catch ( ... )
-	{
-	}
-
-	try 
-	{
-		SoDB::getSensorManager()->processDelayQueue(TRUE);
-	}
-	catch ( ... )
-	{
-		
-	}
 
 
   popOglState();
@@ -551,10 +522,21 @@ bool vtkIvProp::processEvent(const SoEvent *event)
 
 void vtkIvProp::SetInteractor(vtkRenderWindowInteractor* iren)
 {
+  if(this->Interactor != iren)
+  {
+    if(this->Interactor)
+      {
+      this->Interactor->RemoveObserver(this->EventCallbackCommand);
+      this->Interactor->DestroyTimer(this->TimerId);
+      }
+  }
+  this->Interactor = iren;
   if(iren!=NULL)
   {
-    this->Interactor = iren;
-
+    if(iren->GetInitialized()==0)
+    {
+      vtkWarningMacro(<< "Initialize interactor before setting it. Otherwise timer may not work.");
+    }
     float priority=0.0f;
     iren->AddObserver(vtkCommand::MouseMoveEvent, this->EventCallbackCommand,
                    priority);
@@ -570,6 +552,17 @@ void vtkIvProp::SetInteractor(vtkRenderWindowInteractor* iren)
                    priority);
     iren->AddObserver(vtkCommand::RightButtonReleaseEvent, this->EventCallbackCommand,
                    priority);
+    iren->AddObserver(vtkCommand::TimerEvent, 
+                   this->EventCallbackCommand, 
+                   priority);
+
+    iren->GetRenderWindow()->SetDesiredUpdateRate(iren->GetDesiredUpdateRate());
+    this->InvokeEvent(vtkCommand::StartInteractionEvent, NULL);
+    if (!(this->TimerId=iren->CreateRepeatingTimer(20)) ) 
+    {
+      vtkErrorMacro(<< "Timer start failed");
+    }
+
   }
 }
 
@@ -579,6 +572,28 @@ void vtkIvProp::ProcessVtkEvents(vtkObject* vtkNotUsed(object),
                                   void* vtkNotUsed(calldata))
 {
   vtkIvProp* self = reinterpret_cast<vtkIvProp *>( clientdata );
+
+  if(event == vtkCommand::TimerEvent)
+  {
+    try 
+    {
+      SoDB::getSensorManager()->processTimerQueue();
+    }
+    catch ( ... )
+    {
+    }
+
+    try 
+    {
+      SoDB::getSensorManager()->processDelayQueue(TRUE);
+    }
+    catch ( ... )
+    {
+
+    }      
+    self->Interactor->Render();
+    return;
+  }
 
   SbTime time;
   time.setToTimeOfDay();
