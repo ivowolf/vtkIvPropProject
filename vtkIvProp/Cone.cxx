@@ -26,6 +26,7 @@
 #include "vtkCamera.h"
 #include "vtkActor.h"
 #include "vtkRenderer.h"
+#include "vtkProperty.h"
 
 #include "vtkRenderWindowInteractor.h"
 #include "vtkInteractorStyleTrackballCamera.h"
@@ -57,6 +58,7 @@ int main()
   cone->SetRadius( 1.0 );
   cone->SetResolution( 10 );
   
+  
   // 
   // In this example we terminate the pipeline with a mapper process object.
   // (Intermediate filters such as vtkShrinkPolyData could be inserted in
@@ -76,6 +78,7 @@ int main()
   //
   vtkActor *coneActor = vtkActor::New();
   coneActor->SetMapper( coneMapper );
+  coneActor->GetProperty()->SetOpacity(1.0);
 
 
 
@@ -111,8 +114,8 @@ int main()
   
   SoSeparator* root = new SoSeparator;
 
-  //bool ok = loadIvFile("../vtkIvPropProject/simpleXIP/TestSceneGraph_Opaque_Transparent_Annotations.iv", root);
-  bool ok = loadIvFile("../vtkIvPropProject/simpleXIP/xipDVR.iv", root);
+  bool ok = loadIvFile("../vtkIvPropProject/simpleXIP/TestSceneGraph_Opaque_Transparent_Annotations.iv", root);
+  //bool ok = loadIvFile("../vtkIvPropProject/simpleXIP/xipDVR.iv", root);
   vtkIvProp * ivProp = vtkIvProp::New();
   if(ok)
   {
@@ -128,16 +131,17 @@ int main()
   vtkRenderer *ren1= vtkRenderer::New();
   ren1->AddActor( coneActor );
   ren1->AddActor( ivProp );
-  ren1->SetBackground( 0.1, 0.2, 0.4 );
-
+  //ren1->SetBackground( 0.1, 0.2, 0.4 );
+  ren1->SetBackground( 0.0, 0.0, 0.0);
+  
   //
   // Finally we create the render window which will show up on the screen.
   // We put our renderer into the render window using AddRenderer. We also
   // set the size to be 300 pixels by 300.
   //
   vtkRenderWindow *renWin = vtkRenderWindow::New();
-  renWin->SetAlphaBitPlanes(1) ;
-  renWin->SetStencilCapable(1) ;
+  renWin->AlphaBitPlanesOn();
+  //renWin->SetStencilCapable(1) ;
   renWin->SetSize( 512, 512 );
 
 
@@ -173,6 +177,10 @@ int main()
   // follows.
   //
   iren->Initialize();
+
+
+  std::cout<<   renWin->ReportCapabilities();
+
   iren->Start();
   
   //
