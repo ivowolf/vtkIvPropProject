@@ -114,8 +114,8 @@ int main()
   
   SoSeparator* root = new SoSeparator;
 
-  bool ok = loadIvFile("../vtkIvPropProject/simpleXIP/TestSceneGraph_Opaque_Transparent_Annotations.iv", root);
   //bool ok = loadIvFile("../vtkIvPropProject/simpleXIP/xipDVR.iv", root);
+  bool ok = loadIvFile("../vtkIvPropProject/simpleXIP/TestSceneGraph_Opaque_Transparent_Annotations.iv", root);
   vtkIvProp * ivProp = vtkIvProp::New();
   if(ok)
   {
@@ -166,7 +166,6 @@ int main()
     vtkInteractorStyleTrackballCamera::New();
   iren->SetInteractorStyle(NULL);
   
-  ivProp->SetInteractor(iren);
   //
   // Unlike the previous scripts where we performed some operations and then
   // exited, here we leave an event loop running. The user can use the mouse
@@ -177,10 +176,7 @@ int main()
   // follows.
   //
   iren->Initialize();
-
-
-  std::cout<<   renWin->ReportCapabilities();
-
+  ivProp->SetInteractor(iren);
   iren->Start();
   
   //
