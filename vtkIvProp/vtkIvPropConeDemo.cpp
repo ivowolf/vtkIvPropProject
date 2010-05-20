@@ -39,8 +39,8 @@ bool setupConeDemo(vtkRenderer* renderer)
   cone->SetHeight( 3.0 );
   cone->SetRadius( 1.0 );
   cone->SetResolution( 10 );
-  
-  
+
+
   // 
   // In this example we terminate the pipeline with a mapper process object.
   // (Intermediate filters such as vtkShrinkPolyData could be inserted in
@@ -66,32 +66,32 @@ bool setupConeDemo(vtkRenderer* renderer)
 
   if(!SoDB::isInitialized())
     SoDB::init();
-  
+
   // load extensions
 
   std::vector<std::string> xipIvExtensions;
- // xipIvExtensions.push_back("xipivcommond.dll");
+  // xipIvExtensions.push_back("xipivcommond.dll");
   xipIvExtensions.push_back("xipivcored.dll");
   xipIvExtensions.push_back("xipivcoregld.dll");
 
   xipIvExtensions.push_back("xipivdicomd.dll");
   xipIvExtensions.push_back("xipivoverlayd.dll");
   xipIvExtensions.push_back("xipivrendererd.dll");
-//  xipIvExtensions.push_back("xipivitkd.dll");
-//  xipIvExtensions.push_back("xipivvtkd.dll");
+  //  xipIvExtensions.push_back("xipivitkd.dll");
+  //  xipIvExtensions.push_back("xipivvtkd.dll");
   xipIvExtensions.push_back("xipivextrad.dll");
 
-	
-		
+
+
 
   bool rv = loadIVExtensions(xipIvExtensions);
   if(!rv)
   {
-	  std::cerr << "Extension load failed";
-	  return 1;
+    std::cerr << "Extension load failed";
+    return 1;
   }
-  
-  
+
+
   SoSeparator* root = new SoSeparator;
 
   //bool ok = loadIvFile("../vtkIvPropProject/simpleXIP/xipDVR.iv", root);
@@ -111,7 +111,7 @@ bool setupConeDemo(vtkRenderer* renderer)
   renderer->AddActor( coneActor );  renderer->AddActor( ivProp );
   //ren1->SetBackground( 0.1, 0.2, 0.4 );
   renderer->SetBackground( 0.0, 0.0, 0.0);
-  
+
   //
   // Finally we create the render window which will show up on the screen.
   // We put our renderer into the render window using AddRenderer. We also
@@ -120,10 +120,10 @@ bool setupConeDemo(vtkRenderer* renderer)
   renderwindow->AlphaBitPlanesOn();  //renWin->SetStencilCapable(1) ;
 
   iren->SetInteractorStyle(NULL);
-  
+
   iren->Initialize();
   ivProp->SetInteractor(iren);
-  
+
   //
   // Free up any objects we created. All instances in VTK are deleted by
   // using the Delete() method.
@@ -173,17 +173,17 @@ bool loadIvFile(const char * ivFileName, SoSeparator* root)
 }
 
 bool loadIVExtensions(const std::vector<std::string>& extensions )
- {
+{
 
 
-	 for(int i = 0; i < extensions.size(); ++i)
-	 {
-		 HMODULE lib = LoadLibraryA(extensions[i].c_str());
-		 if(!lib)
-			 return false;
-		
-	 }
+  for(int i = 0; i < extensions.size(); ++i)
+  {
+    HMODULE lib = LoadLibraryA(extensions[i].c_str());
+    if(!lib)
+      return false;
 
-	 return true;
+  }
+
+  return true;
 }
 

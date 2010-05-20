@@ -19,7 +19,7 @@ int main()
   renWin->SetSize( 512, 512 );
 
   iren->Start();
-  
+
   ren1->Delete();
   renWin->Delete();
 

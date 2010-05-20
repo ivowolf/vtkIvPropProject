@@ -16,7 +16,7 @@ SO_ACTION_SOURCE(SoVTKRenderAction);
 // Use: public
 
 SoVTKRenderAction::SoVTKRenderAction(const SbViewportRegion &viewportRegion) 
-  : SoGLRenderAction(viewportRegion), vtkRenderPassType(RenderOpaqueGeometry)
+: SoGLRenderAction(viewportRegion), vtkRenderPassType(RenderOpaqueGeometry)
 //
 ////////////////////////////////////////////////////////////////////////
 {
@@ -67,11 +67,11 @@ SoVTKRenderAction::apply(SoPath *path)
   if( (getVTKRenderPassType()==RenderOpaqueGeometry) && (!isRenderingDelayedPaths()) )
     SoGLRenderAction::apply(path);
   else
-  if( (getVTKRenderPassType()==RenderOverlay) && (isRenderingDelayedPaths()) )
-    SoGLRenderAction::apply(path);
-  else
-  if( (getVTKRenderPassType()==RenderTranslucentPolygonalGeometry) && (!isRenderingDelayedPaths()) )
-    SoGLRenderAction::apply(path);
+    if( (getVTKRenderPassType()==RenderOverlay) && (isRenderingDelayedPaths()) )
+      SoGLRenderAction::apply(path);
+    else
+      if( (getVTKRenderPassType()==RenderTranslucentPolygonalGeometry) && (!isRenderingDelayedPaths()) )
+        SoGLRenderAction::apply(path);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -89,11 +89,11 @@ SoVTKRenderAction::apply(const SoPathList &pathList, SbBool obeysRules)
   if( (getVTKRenderPassType()==RenderOpaqueGeometry) && (!isRenderingDelayedPaths()) )
     SoGLRenderAction::apply(pathList, obeysRules);
   else
-  if( (getVTKRenderPassType()==RenderOverlay) && (isRenderingDelayedPaths()) )
-    SoGLRenderAction::apply(pathList, obeysRules);
-  else
-  if( (getVTKRenderPassType()==RenderTranslucentPolygonalGeometry) && (!isRenderingDelayedPaths()) )
-    SoGLRenderAction::apply(pathList, obeysRules);
+    if( (getVTKRenderPassType()==RenderOverlay) && (isRenderingDelayedPaths()) )
+      SoGLRenderAction::apply(pathList, obeysRules);
+    else
+      if( (getVTKRenderPassType()==RenderTranslucentPolygonalGeometry) && (!isRenderingDelayedPaths()) )
+        SoGLRenderAction::apply(pathList, obeysRules);
 }
 
 void
@@ -101,7 +101,7 @@ SoVTKRenderAction::setVTKRenderPassType(VTKRenderPassType type)
 {
   this->vtkRenderPassType = type;
 }
-  
+
 //void
 //SoVTKRenderAction::beginTraversal(SoNode *node)
 ////
@@ -115,10 +115,10 @@ SoVTKRenderAction::setVTKRenderPassType(VTKRenderPassType type)
 //    // these cases apart by examining the flags.
 //
 //    if (renderingTranspObjs || renderingDelPaths)
-//	traverse(node);
+//    traverse(node);
 //
 //    else
-//	renderAllPasses(node);
+//    renderAllPasses(node);
 //}
 //
 
@@ -149,29 +149,29 @@ SoVTKRenderAction::setVTKRenderPassType(VTKRenderPassType type)
 //    // objects were added
 //    if (delayObjs && transpPaths.getLength() > 0 && ! hasTerminated()) {
 //
-//	// Make sure blending is enabled if necessary
-//	if (transpType != SCREEN_DOOR)
-//	    enableBlending(TRUE);
+//    // Make sure blending is enabled if necessary
+//    if (transpType != SCREEN_DOOR)
+//        enableBlending(TRUE);
 //
-//	renderTransparentObjs();
+//    renderTransparentObjs();
 //
-//	// Disable blending for next pass
-//	if (transpType != SCREEN_DOOR)
-//	    enableBlending(FALSE);
+//    // Disable blending for next pass
+//    if (transpType != SCREEN_DOOR)
+//        enableBlending(FALSE);
 //    }
 //
 //    // Delayed paths
 //    if (delayedPaths.getLength() > 0 && ! hasTerminated()) {
-//	renderingDelPaths = TRUE;
+//    renderingDelPaths = TRUE;
 //
-//	// Render paths to delayed objects. We know these paths obey
-//	// the rules for compact path lists, so let the action know
-//	apply(delayedPaths, TRUE);
+//    // Render paths to delayed objects. We know these paths obey
+//    // the rules for compact path lists, so let the action know
+//    apply(delayedPaths, TRUE);
 //
-//	// Clear out the list
-//	delayedPaths.truncate(0);
+//    // Clear out the list
+//    delayedPaths.truncate(0);
 //
-//	renderingDelPaths = FALSE;
+//    renderingDelPaths = FALSE;
 //    }
 //}
 //
@@ -190,7 +190,7 @@ SoVTKRenderAction::setVTKRenderPassType(VTKRenderPassType type)
 ////
 //////////////////////////////////////////////////////////////////////////
 //{
-//    int	i, numObjs = transpPaths.getLength(), numToDo;
+//    int    i, numObjs = transpPaths.getLength(), numToDo;
 //
 //    // Indicate that we are doing transparent objects so we know not
 //    // to render all passes
@@ -206,59 +206,59 @@ SoVTKRenderAction::setVTKRenderPassType(VTKRenderPassType type)
 //
 //    // If not sorting, just render them in order
 //    if (! sortObjs)
-//	// Render paths to transparent objects. We know these paths
-//	// obey the rules for compact path lists, so let the action know.
-//	apply(transpPaths, TRUE);
+//    // Render paths to transparent objects. We know these paths
+//    // obey the rules for compact path lists, so let the action know.
+//    apply(transpPaths, TRUE);
 //
 //    // Otherwise, compute bounding boxes, render objs back to front
 //    else {
-//	if (ba == NULL) {
-//	    ba = new SoGetBoundingBoxAction(vpRegion);
+//    if (ba == NULL) {
+//        ba = new SoGetBoundingBoxAction(vpRegion);
 //
-//	    // Make sure bounding boxes are in camera space. This
-//	    // means the z coordinates of the bounding boxes indicate
-//	    // distance from the camera.
-//	    ba->setInCameraSpace(TRUE);
-//	}
+//        // Make sure bounding boxes are in camera space. This
+//        // means the z coordinates of the bounding boxes indicate
+//        // distance from the camera.
+//        ba->setInCameraSpace(TRUE);
+//    }
 //
-//	// Make sure there is room for the bounding boxes
-//	if (bboxes == NULL) {
-//	    bboxes = new SbBox3f[numObjs];
-//	    numBBoxes = numObjs;
-//	}
-//	else if (numBBoxes < numObjs) {
-//	    delete [] bboxes;
-//	    bboxes = new SbBox3f[numObjs];
-//	    numBBoxes = numObjs;
-//	}
+//    // Make sure there is room for the bounding boxes
+//    if (bboxes == NULL) {
+//        bboxes = new SbBox3f[numObjs];
+//        numBBoxes = numObjs;
+//    }
+//    else if (numBBoxes < numObjs) {
+//        delete [] bboxes;
+//        bboxes = new SbBox3f[numObjs];
+//        numBBoxes = numObjs;
+//    }
 //
-//	for (i = 0; i < numObjs; i++) {
-//	    ba->apply(transpPaths[i]);
-//	    bboxes[i] = ba->getBoundingBox();
-//	}
+//    for (i = 0; i < numObjs; i++) {
+//        ba->apply(transpPaths[i]);
+//        bboxes[i] = ba->getBoundingBox();
+//    }
 //
-//	// Render them in sorted order
-//	for (numToDo = numObjs; numToDo > 0; --numToDo) {
-//	    int		farthest;
-//	    float	zFar;
+//    // Render them in sorted order
+//    for (numToDo = numObjs; numToDo > 0; --numToDo) {
+//        int        farthest;
+//        float    zFar;
 //
-//	    // Use selection sort, since number of objects is usually small
+//        // Use selection sort, since number of objects is usually small
 //
-//	    // Look for bbox with smallest zmax (farthest from camera!)
-//	    zFar = FLT_MAX;
-//	    for (i = 0; i < numObjs; i++) {
-//		if (bboxes[i].getMax()[2] < zFar) {
-//		    zFar = bboxes[i].getMax()[2];
-//		    farthest = i;
-//		}
-//	    }
+//        // Look for bbox with smallest zmax (farthest from camera!)
+//        zFar = FLT_MAX;
+//        for (i = 0; i < numObjs; i++) {
+//        if (bboxes[i].getMax()[2] < zFar) {
+//            zFar = bboxes[i].getMax()[2];
+//            farthest = i;
+//        }
+//        }
 //
-//	    // Render farthest one
-//	    apply(transpPaths[farthest]);
+//        // Render farthest one
+//        apply(transpPaths[farthest]);
 //
-//	    // Mark it as being far
-//	    bboxes[farthest].getMax()[2] = FLT_MAX;
-//	}
+//        // Mark it as being far
+//        bboxes[farthest].getMax()[2] = FLT_MAX;
+//    }
 //    }
 //
 //    // Restore zwritemask to what we assume it was before...

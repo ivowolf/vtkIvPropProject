@@ -30,18 +30,18 @@ PURPOSE.  See the above copyright notices for more information.
 template<typename T>
 std::string toString(const T& v)
 {
-	std::stringstream sstr;
-	try 
-	{
-		sstr << v;	
-	}
-	catch ( ... )
-	{
-		return std::string();
-	}
+  std::stringstream sstr;
+  try 
+  {
+    sstr << v;    
+  }
+  catch ( ... )
+  {
+    return std::string();
+  }
 
-	return sstr.str();
-	
+  return sstr.str();
+
 }
 #endif
 
@@ -60,13 +60,13 @@ std::string toString(const T& v)
 #include <Inventor/SbViewportRegion.h>
 #include <Inventor/SoDB.h>
 #include <Inventor/events/SoEvent.h>
- #include <Inventor/events/SoMouseButtonEvent.h>
- #include <Inventor/events/SoKeyboardEvent.h>
- #include <Inventor/events/SoLocation2Event.h>
+#include <Inventor/events/SoMouseButtonEvent.h>
+#include <Inventor/events/SoKeyboardEvent.h>
+#include <Inventor/events/SoLocation2Event.h>
 #include <Inventor/fields/SoSFTime.h>
- #include <Inventor/events/SoMotion3Event.h>				 						
- #include <Inventor/events/SoMouseWheelEvent.h>
- #include <Inventor/events/SoMotion3Event.h>
+#include <Inventor/events/SoMotion3Event.h>                                         
+#include <Inventor/events/SoMouseWheelEvent.h>
+#include <Inventor/events/SoMotion3Event.h>
 
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
@@ -82,24 +82,24 @@ std::string toString(const T& v)
 
 struct OpenGLState
 {
-	int frameBufferBinding;
-	int	texUnitTarget[32];
-	int	texUnitBinding[32];
-	int texUnitEnabled[32];
-	int fixedFuncTexEnabled[32];
-	int	activeProgram;
-	int viewport[4];
-	int currentTexUnit;
-	int matrixMode;
-	float projMatrix[16];
-	float mvMatrix[16];
-	bool lighting;
-	bool blending;
-	bool depthTest;
-	bool light[8];
-	bool scissorTest;
+  int frameBufferBinding;
+  int    texUnitTarget[32];
+  int    texUnitBinding[32];
+  int texUnitEnabled[32];
+  int fixedFuncTexEnabled[32];
+  int    activeProgram;
+  int viewport[4];
+  int currentTexUnit;
+  int matrixMode;
+  float projMatrix[16];
+  float mvMatrix[16];
+  bool lighting;
+  bool blending;
+  bool depthTest;
+  bool light[8];
+  bool scissorTest;
 
-//TODO: check for lighting!
+  //TODO: check for lighting!
 
 };
 
@@ -108,109 +108,109 @@ OpenGLState oglState;
 void pushOglState()
 {
 
-	SoXipGLOW::init();
-
-	
-	int alphaBits = 0;
-	glGetIntegerv(GL_ALPHA_BITS, &alphaBits);
-	//glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-
-	//glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	oglState.blending   = glIsEnabled(GL_BLEND);
-	oglState.depthTest = glIsEnabled(GL_DEPTH_TEST);
-	oglState.lighting  = glIsEnabled(GL_LIGHTING);
-	oglState.scissorTest = glIsEnabled(GL_SCISSOR_TEST);
+  SoXipGLOW::init();
 
 
-	glPushAttrib(GL_ALL_ATTRIB_BITS);
-	glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
-	glGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT, &oglState.frameBufferBinding);
-	glGetIntegerv(GL_VIEWPORT, &oglState.viewport[0]);
-	glGetIntegerv(GL_ACTIVE_TEXTURE, &oglState.currentTexUnit);
+  int alphaBits = 0;
+  glGetIntegerv(GL_ALPHA_BITS, &alphaBits);
+  //glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
-	for(int i = 31; i >=0 ; --i)
-	{
-		oglState.texUnitTarget[i] = 0;
-		oglState.texUnitBinding[i] = 0;
-		oglState.texUnitEnabled[i] = 0;
-		oglState.fixedFuncTexEnabled[i] = 0;
+  //glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+  //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glActiveTexture(GL_TEXTURE0 + i);
-
-		if(glIsEnabled(GL_TEXTURE_1D))
-			oglState.fixedFuncTexEnabled[i] = 1;
-		
-		if(glIsEnabled(GL_TEXTURE_2D))
-			oglState.fixedFuncTexEnabled[i] = 1;
-
-		if(glIsEnabled(GL_TEXTURE_3D))
-			oglState.fixedFuncTexEnabled[i] = 1;
+  oglState.blending   = glIsEnabled(GL_BLEND);
+  oglState.depthTest = glIsEnabled(GL_DEPTH_TEST);
+  oglState.lighting  = glIsEnabled(GL_LIGHTING);
+  oglState.scissorTest = glIsEnabled(GL_SCISSOR_TEST);
 
 
+  glPushAttrib(GL_ALL_ATTRIB_BITS);
+  glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
+  glGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT, &oglState.frameBufferBinding);
+  glGetIntegerv(GL_VIEWPORT, &oglState.viewport[0]);
+  glGetIntegerv(GL_ACTIVE_TEXTURE, &oglState.currentTexUnit);
 
-		glGetIntegerv(GL_TEXTURE_BINDING_1D, &oglState.texUnitBinding[i]);
-		if(glGetError() == GL_NO_ERROR && oglState.texUnitBinding[i])
-		{
-			oglState.texUnitEnabled[i] = true;
-			oglState.texUnitTarget[i] = GL_TEXTURE_1D;
-			continue;
-		}
+  for(int i = 31; i >=0 ; --i)
+  {
+    oglState.texUnitTarget[i] = 0;
+    oglState.texUnitBinding[i] = 0;
+    oglState.texUnitEnabled[i] = 0;
+    oglState.fixedFuncTexEnabled[i] = 0;
 
-		glGetIntegerv(GL_TEXTURE_BINDING_2D, &oglState.texUnitBinding[i]);
-		if(glGetError() == GL_NO_ERROR && oglState.texUnitBinding[i])
-		{
-			oglState.texUnitEnabled[i] = true;
-			oglState.texUnitTarget[i] = GL_TEXTURE_2D;
-			continue;
-		}
-		
-		glGetIntegerv(GL_TEXTURE_BINDING_3D, &oglState.texUnitBinding[i]);
-		if(glGetError() == GL_NO_ERROR && oglState.texUnitBinding[i])
-		{
-			oglState.texUnitEnabled[i] = true;
-			oglState.texUnitTarget[i] = GL_TEXTURE_3D;
-			continue;
-		}
-	}
+    glActiveTexture(GL_TEXTURE0 + i);
 
-	for(int i = 0; i < 8; ++i)
-	{
-		oglState.light[i] = glIsEnabled(GL_LIGHT0 + i);
-		if(oglState.light[i])
-			glDisable(GL_LIGHT0 + i);
-	}
+    if(glIsEnabled(GL_TEXTURE_1D))
+      oglState.fixedFuncTexEnabled[i] = 1;
+
+    if(glIsEnabled(GL_TEXTURE_2D))
+      oglState.fixedFuncTexEnabled[i] = 1;
+
+    if(glIsEnabled(GL_TEXTURE_3D))
+      oglState.fixedFuncTexEnabled[i] = 1;
 
 
-	// get matrix state
-	glGetIntegerv(GL_MATRIX_MODE, &oglState.matrixMode);
 
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadIdentity();
+    glGetIntegerv(GL_TEXTURE_BINDING_1D, &oglState.texUnitBinding[i]);
+    if(glGetError() == GL_NO_ERROR && oglState.texUnitBinding[i])
+    {
+      oglState.texUnitEnabled[i] = true;
+      oglState.texUnitTarget[i] = GL_TEXTURE_1D;
+      continue;
+    }
 
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	glLoadIdentity();
+    glGetIntegerv(GL_TEXTURE_BINDING_2D, &oglState.texUnitBinding[i]);
+    if(glGetError() == GL_NO_ERROR && oglState.texUnitBinding[i])
+    {
+      oglState.texUnitEnabled[i] = true;
+      oglState.texUnitTarget[i] = GL_TEXTURE_2D;
+      continue;
+    }
 
-	glEnable(GL_BLEND);
-	glEnable(GL_LIGHTING);
-	glEnable(GL_DEPTH_TEST);
-	
-	
-	// disabled for inventor
-	//glDisable(GL_COLOR_MATERIAL);
-	//glDisable(GL_DEPTH_TEST);
-	//glDisable(GL_BLEND);
-	//glDisable(GL_SCISSOR_TEST);
-	//glDisable(GL_ALPHA_TEST);
-	//glDisable(GL_POLYGON_STIPPLE);
-	//glDisable(GL_LIGHTING);
+    glGetIntegerv(GL_TEXTURE_BINDING_3D, &oglState.texUnitBinding[i]);
+    if(glGetError() == GL_NO_ERROR && oglState.texUnitBinding[i])
+    {
+      oglState.texUnitEnabled[i] = true;
+      oglState.texUnitTarget[i] = GL_TEXTURE_3D;
+      continue;
+    }
+  }
 
-	//glPolygonMode(GL_FRONT_AND_BACK , GL_FILL);
+  for(int i = 0; i < 8; ++i)
+  {
+    oglState.light[i] = glIsEnabled(GL_LIGHT0 + i);
+    if(oglState.light[i])
+      glDisable(GL_LIGHT0 + i);
+  }
 
-	glAlphaFunc(GL_ALWAYS, 0.0f);
+
+  // get matrix state
+  glGetIntegerv(GL_MATRIX_MODE, &oglState.matrixMode);
+
+  glMatrixMode(GL_PROJECTION);
+  glPushMatrix();
+  glLoadIdentity();
+
+  glMatrixMode(GL_MODELVIEW);
+  glPushMatrix();
+  glLoadIdentity();
+
+  glEnable(GL_BLEND);
+  glEnable(GL_LIGHTING);
+  glEnable(GL_DEPTH_TEST);
+
+
+  // disabled for inventor
+  //glDisable(GL_COLOR_MATERIAL);
+  //glDisable(GL_DEPTH_TEST);
+  //glDisable(GL_BLEND);
+  //glDisable(GL_SCISSOR_TEST);
+  //glDisable(GL_ALPHA_TEST);
+  //glDisable(GL_POLYGON_STIPPLE);
+  //glDisable(GL_LIGHTING);
+
+  //glPolygonMode(GL_FRONT_AND_BACK , GL_FILL);
+
+  glAlphaFunc(GL_ALWAYS, 0.0f);
 
 
 
@@ -219,63 +219,63 @@ void pushOglState()
 
 void popOglState()
 {
-	for(int i = 0; i < 32; ++i)
-	{
-		if(!oglState.texUnitEnabled[i])
-			continue;
+  for(int i = 0; i < 32; ++i)
+  {
+    if(!oglState.texUnitEnabled[i])
+      continue;
 
-		glActiveTexture(GL_TEXTURE0 + i);
-		if(oglState.fixedFuncTexEnabled[i])
-			glEnable(oglState.texUnitTarget[i]);
-	
-		glBindTexture(oglState.texUnitTarget[i], oglState.texUnitBinding[i]);
-	}
+    glActiveTexture(GL_TEXTURE0 + i);
+    if(oglState.fixedFuncTexEnabled[i])
+      glEnable(oglState.texUnitTarget[i]);
 
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, oglState.frameBufferBinding);
-	glViewport(oglState.viewport[0], oglState.viewport[1], oglState.viewport[2], oglState.viewport[3]);
-	glActiveTexture(oglState.currentTexUnit);
-	glPopAttrib();
-	glPopClientAttrib();
+    glBindTexture(oglState.texUnitTarget[i], oglState.texUnitBinding[i]);
+  }
 
-
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-
-	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
+  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, oglState.frameBufferBinding);
+  glViewport(oglState.viewport[0], oglState.viewport[1], oglState.viewport[2], oglState.viewport[3]);
+  glActiveTexture(oglState.currentTexUnit);
+  glPopAttrib();
+  glPopClientAttrib();
 
 
-	glMatrixMode(oglState.matrixMode);
+  glMatrixMode(GL_PROJECTION);
+  glPopMatrix();
+
+  glMatrixMode(GL_MODELVIEW);
+  glPopMatrix();
 
 
-	if(oglState.blending)
-		glEnable(GL_BLEND);
-	else
-		glDisable(GL_BLEND);
+  glMatrixMode(oglState.matrixMode);
 
-	if(oglState.lighting)
-		glEnable(GL_LIGHTING);
-	else
-		glDisable(GL_LIGHTING);
 
-	if(oglState.depthTest)
-		glEnable(GL_DEPTH_TEST);
-	else
-		glDisable(GL_DEPTH_TEST);
+  if(oglState.blending)
+    glEnable(GL_BLEND);
+  else
+    glDisable(GL_BLEND);
 
-	if(oglState.scissorTest)
-		glEnable(GL_SCISSOR_TEST);
-	else
-		glDisable(GL_SCISSOR_TEST);
+  if(oglState.lighting)
+    glEnable(GL_LIGHTING);
+  else
+    glDisable(GL_LIGHTING);
 
-	for(int i = 0; i < 8; ++i)
-	{
-		if(oglState.light[i]) 
-			glEnable(GL_LIGHT0 + i);
-		else
-			glDisable(GL_LIGHT0 + i);
+  if(oglState.depthTest)
+    glEnable(GL_DEPTH_TEST);
+  else
+    glDisable(GL_DEPTH_TEST);
 
-	}
+  if(oglState.scissorTest)
+    glEnable(GL_SCISSOR_TEST);
+  else
+    glDisable(GL_SCISSOR_TEST);
+
+  for(int i = 0; i < 8; ++i)
+  {
+    if(oglState.light[i]) 
+      glEnable(GL_LIGHT0 + i);
+    else
+      glDisable(GL_LIGHT0 + i);
+
+  }
 
 }
 
@@ -289,7 +289,7 @@ vtkIvProp::vtkIvProp() : scene(NULL), Interactor(NULL)
   renderAction = new SoVTKRenderAction(SbVec2s(1,1));
   handleEventAction = new SoHandleEventAction(SbVec2s(1,1));
   this->TimerId = 1;
-  
+
   this->EventCallbackCommand = vtkCallbackCommand::New();
   this->EventCallbackCommand->SetClientData(this); 
   this->EventCallbackCommand->SetCallback(vtkIvProp::ProcessVtkEvents);
@@ -297,11 +297,11 @@ vtkIvProp::vtkIvProp() : scene(NULL), Interactor(NULL)
 
 vtkIvProp::~vtkIvProp()
 {
-    if(this->Interactor)
-      {
-      this->Interactor->RemoveObserver(this->EventCallbackCommand);
-      this->Interactor->DestroyTimer(this->TimerId);
-      }
+  if(this->Interactor)
+  {
+    this->Interactor->RemoveObserver(this->EventCallbackCommand);
+    this->Interactor->DestroyTimer(this->TimerId);
+  }
 }
 
 double* vtkIvProp::GetBounds()
@@ -318,59 +318,59 @@ double* vtkIvProp::GetBounds()
 int vtkIvProp::RenderOpaqueGeometry(vtkViewport* viewport)
 {
 
-//#define FOO
+  //#define FOO
 #ifdef FOO
-	pushOglState();
+  pushOglState();
 
-	glDisable(GL_DEPTH_TEST);
-	//glDisable(GL_ALPHA_TEST);
-	//glDisable(GL_BLEND);
-
-
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	// quad 
-
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+  glDisable(GL_DEPTH_TEST);
+  //glDisable(GL_ALPHA_TEST);
+  //glDisable(GL_BLEND);
 
 
-	glColor4f(1.0f, 1.0f, 0.0f, 1.0f);
-	glBegin(GL_QUADS);
-	 glVertex2f(-1,-1);
-	 glVertex2f( 1,-1);
-	 glVertex2f( 1, 1);
-	 glVertex2f(-1, 1);
-	glEnd();
-	
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	glColor4f(1.0f, 0.0f, 0.0f, 0.5f);
-	glBegin(GL_QUADS);
-	 glVertex2f(-0.5,-0.5);
-	 glVertex2f( 0.5,-0.5);
-	 glVertex2f( 0.5, 0.5);
-	 glVertex2f(-0.5, 0.5);
-	glEnd();
+  // quad 
 
-	popOglState();
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
 
-	return 1;
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+
+
+  glColor4f(1.0f, 1.0f, 0.0f, 1.0f);
+  glBegin(GL_QUADS);
+  glVertex2f(-1,-1);
+  glVertex2f( 1,-1);
+  glVertex2f( 1, 1);
+  glVertex2f(-1, 1);
+  glEnd();
+
+
+  glColor4f(1.0f, 0.0f, 0.0f, 0.5f);
+  glBegin(GL_QUADS);
+  glVertex2f(-0.5,-0.5);
+  glVertex2f( 0.5,-0.5);
+  glVertex2f( 0.5, 0.5);
+  glVertex2f(-0.5, 0.5);
+  glEnd();
+
+  popOglState();
+
+  return 1;
 
 #else
 
 #ifndef RENDER_IV_MAIN_PASS
-	return 0;
+  return 0;
 #endif
 
   if(scene==NULL)
     return 0;
 
   if(!viewport->IsA("vtkOpenGLRenderer"))
-		return 0;
+    return 0;
 
 
   pushOglState();
@@ -408,7 +408,7 @@ int vtkIvProp::RenderOpaqueGeometry(vtkViewport* viewport)
 #ifdef _DEBUG
   std::string debugStringA("Entering Inventor Rendering Control");
   if(glStringMarkerGREMEDY)
-	glStringMarkerGREMEDY(debugStringA.length(), debugStringA.c_str());
+    glStringMarkerGREMEDY(debugStringA.length(), debugStringA.c_str());
 #endif 
 
   renderAction->setVTKRenderPassType(SoVTKRenderAction::RenderOpaqueGeometry);
@@ -417,7 +417,7 @@ int vtkIvProp::RenderOpaqueGeometry(vtkViewport* viewport)
 #ifdef _DEBUG
   std::string debugStringB("Exiting Inventor Rendering Control");
   if(glStringMarkerGREMEDY)
-	glStringMarkerGREMEDY(debugStringB.length(), debugStringB.c_str());
+    glStringMarkerGREMEDY(debugStringB.length(), debugStringB.c_str());
 #endif
 
 
@@ -431,7 +431,7 @@ int vtkIvProp::RenderOpaqueGeometry(vtkViewport* viewport)
 int vtkIvProp::RenderOverlay(vtkViewport* /*viewport*/)
 {
 #ifndef RENDER_IV_OVERLAY_PASS
-	return 0;
+  return 0;
 #endif
 
 
@@ -444,14 +444,14 @@ int vtkIvProp::RenderOverlay(vtkViewport* /*viewport*/)
   renderAction->apply(scene);
 
   popOglState();
-  
+
   return 0;
 
 }
 
 void vtkIvProp::ReleaseGraphicsResources(vtkWindow* window)
 {
-  
+
 }
 
 void vtkIvProp::InitPathTraversal()
@@ -473,7 +473,7 @@ int vtkIvProp::RenderTranslucentPolygonalGeometry( vtkViewport * viewport)
 {
 
 #ifndef RENDER_IV_TRANSPARENT_PASS
-	return 0;
+  return 0;
 #endif
 
 
@@ -496,7 +496,7 @@ int vtkIvProp::RenderVolumetricGeometry( vtkViewport * )
 {
 
 #ifndef RENDER_IV_VOLUME_PASS
-	return 0;
+  return 0;
 #endif
 
 
@@ -528,14 +528,14 @@ bool vtkIvProp::processEvent(const SoEvent *event)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    if ((scene != NULL) && (handleEventAction != NULL)) {    
-	handleEventAction->setEvent(event);
-	handleEventAction->apply(scene);
-	
-	return handleEventAction->isHandled();
-    }
-    else
-	return FALSE;
+  if ((scene != NULL) && (handleEventAction != NULL)) {    
+    handleEventAction->setEvent(event);
+    handleEventAction->apply(scene);
+
+    return handleEventAction->isHandled();
+  }
+  else
+    return FALSE;
 }
 
 void vtkIvProp::SetInteractor(vtkRenderWindowInteractor* iren)
@@ -543,10 +543,10 @@ void vtkIvProp::SetInteractor(vtkRenderWindowInteractor* iren)
   if(this->Interactor != iren)
   {
     if(this->Interactor)
-      {
+    {
       this->Interactor->RemoveObserver(this->EventCallbackCommand);
       this->Interactor->DestroyTimer(this->TimerId);
-      }
+    }
   }
   this->Interactor = iren;
   if(iren!=NULL)
@@ -557,22 +557,22 @@ void vtkIvProp::SetInteractor(vtkRenderWindowInteractor* iren)
     }
     float priority=0.0f;
     iren->AddObserver(vtkCommand::MouseMoveEvent, this->EventCallbackCommand,
-                   priority);
+      priority);
     iren->AddObserver(vtkCommand::LeftButtonPressEvent, this->EventCallbackCommand,
-                   priority);
+      priority);
     iren->AddObserver(vtkCommand::LeftButtonReleaseEvent, this->EventCallbackCommand,
-                   priority);
+      priority);
     iren->AddObserver(vtkCommand::MiddleButtonPressEvent, this->EventCallbackCommand,
-                   priority);
+      priority);
     iren->AddObserver(vtkCommand::MiddleButtonReleaseEvent, this->EventCallbackCommand,
-                   priority);
+      priority);
     iren->AddObserver(vtkCommand::RightButtonPressEvent, this->EventCallbackCommand,
-                   priority);
+      priority);
     iren->AddObserver(vtkCommand::RightButtonReleaseEvent, this->EventCallbackCommand,
-                   priority);
+      priority);
     iren->AddObserver(vtkCommand::TimerEvent, 
-                   this->EventCallbackCommand, 
-                   priority);
+      this->EventCallbackCommand, 
+      priority);
 
     iren->GetRenderWindow()->SetDesiredUpdateRate(iren->GetDesiredUpdateRate());
     this->InvokeEvent(vtkCommand::StartInteractionEvent, NULL);
@@ -585,9 +585,9 @@ void vtkIvProp::SetInteractor(vtkRenderWindowInteractor* iren)
 }
 
 void vtkIvProp::ProcessVtkEvents(vtkObject* vtkNotUsed(object),
-                                  unsigned long event,
-                                  void* clientdata,
-                                  void* vtkNotUsed(calldata))
+                                 unsigned long event,
+                                 void* clientdata,
+                                 void* vtkNotUsed(calldata))
 {
   vtkIvProp* self = reinterpret_cast<vtkIvProp *>( clientdata );
 
@@ -668,102 +668,102 @@ void vtkIvProp::ProcessVtkEvents(vtkObject* vtkNotUsed(object),
 
 
 
- SoNode	  * vtkIvProp::getNode(const char * nodeName)
- {
-	 SoNode * ret = 0;
-	 if(nodeName)
-		 ret = (SoNode*) SoNode::getByName(nodeName);
-	 return ret;
+SoNode      * vtkIvProp::getNode(const char * nodeName)
+{
+  SoNode * ret = 0;
+  if(nodeName)
+    ret = (SoNode*) SoNode::getByName(nodeName);
+  return ret;
 
- }
+}
 
- SoEngine  * vtkIvProp::getEngine(const char * engineName)
- {
-	 SoEngine * ret = 0;
-	 if(engineName)
-		 ret = (SoEngine*) SoEngine::getByName(engineName);
-	 return ret;
+SoEngine  * vtkIvProp::getEngine(const char * engineName)
+{
+  SoEngine * ret = 0;
+  if(engineName)
+    ret = (SoEngine*) SoEngine::getByName(engineName);
+  return ret;
 
- }
+}
 
- SoField * vtkIvProp::getSoField(const char * fieldContainerName, const char * fieldName)
- {
-	 SoFieldContainer * fc = SoNode::getByName(fieldContainerName);
-	 if(!fc)
-		 fc = SoEngine::getByName(fieldContainerName);
-	 if(!fc)
-		 return 0;
+SoField * vtkIvProp::getSoField(const char * fieldContainerName, const char * fieldName)
+{
+  SoFieldContainer * fc = SoNode::getByName(fieldContainerName);
+  if(!fc)
+    fc = SoEngine::getByName(fieldContainerName);
+  if(!fc)
+    return 0;
 
-	 SoField *field = fc->getField(fieldName);
-	 return field;
- }
+  SoField *field = fc->getField(fieldName);
+  return field;
+}
 
- SoSField * vtkIvProp::getSField(const char * fieldContainerName, const char * fieldName)
- {
-	SoField * field = getSoField(fieldContainerName, fieldName);
-	if(field->isOfType(SoSField::getClassTypeId()))
-		return (SoSField *) field;
-	return 0;
- }
+SoSField * vtkIvProp::getSField(const char * fieldContainerName, const char * fieldName)
+{
+  SoField * field = getSoField(fieldContainerName, fieldName);
+  if(field->isOfType(SoSField::getClassTypeId()))
+    return (SoSField *) field;
+  return 0;
+}
 
- SoMField * vtkIvProp::getMField(const char * fieldContainerName, const char * fieldName)
- {
-	 SoField * field = getSoField(fieldContainerName, fieldName);
-	 if(field->isOfType(SoMField::getClassTypeId()))
-		 return (SoMField *) field;
-	 return 0;
- }
-
-
- void vtkIvProp::setSField(const char * fieldContainerName, const char * fieldName, const char * value)
- {
-	 if(!value || !fieldContainerName || !fieldName)
-		 return;
-
-	 SoSField *field = getSField(fieldContainerName, fieldName);
-	 if (field)
-	 {
-		 if (strlen(value) > 0)
-			 field->set(value);
-		 else
-			 field->touch();
-	 }
- }
-
- void vtkIvProp::setMField(const char * fieldContainerName, const char * fieldName, const char * value, int index)
- {
-	 if(!value || !fieldContainerName || !fieldName)
-		 return;
-
-	 SoMField *field = getMField(fieldContainerName, fieldName);
-
-	if (field)
-	{
-		if (strlen(value) > 0)
-		{
-			// If this is really a MF then use the index
-			if (field->isOfType(SoMField::getClassTypeId()))
-			{		
-				// If this is really a MF then use the index
-				SoMField *mfield = (SoMField*)field;
-				mfield->set1(index, value);
-			}
-		}
-		else
-		{
-			field->touch();
-		}
-	}
-
- }
+SoMField * vtkIvProp::getMField(const char * fieldContainerName, const char * fieldName)
+{
+  SoField * field = getSoField(fieldContainerName, fieldName);
+  if(field->isOfType(SoMField::getClassTypeId()))
+    return (SoMField *) field;
+  return 0;
+}
 
 
- void vtkIvProp::setMFieldNumElements(const char * fieldContainerName, const char * fieldName, int num)
- {
-	 if( !fieldContainerName || !fieldName)
-		 return;
+void vtkIvProp::setSField(const char * fieldContainerName, const char * fieldName, const char * value)
+{
+  if(!value || !fieldContainerName || !fieldName)
+    return;
 
-	 SoMField *mfield = getMField(fieldContainerName, fieldName);
-	 if (mfield)
-			 mfield->setNum(num);
- }
+  SoSField *field = getSField(fieldContainerName, fieldName);
+  if (field)
+  {
+    if (strlen(value) > 0)
+      field->set(value);
+    else
+      field->touch();
+  }
+}
+
+void vtkIvProp::setMField(const char * fieldContainerName, const char * fieldName, const char * value, int index)
+{
+  if(!value || !fieldContainerName || !fieldName)
+    return;
+
+  SoMField *field = getMField(fieldContainerName, fieldName);
+
+  if (field)
+  {
+    if (strlen(value) > 0)
+    {
+      // If this is really a MF then use the index
+      if (field->isOfType(SoMField::getClassTypeId()))
+      {        
+        // If this is really a MF then use the index
+        SoMField *mfield = (SoMField*)field;
+        mfield->set1(index, value);
+      }
+    }
+    else
+    {
+      field->touch();
+    }
+  }
+
+}
+
+
+void vtkIvProp::setMFieldNumElements(const char * fieldContainerName, const char * fieldName, int num)
+{
+  if( !fieldContainerName || !fieldName)
+    return;
+
+  SoMField *mfield = getMField(fieldContainerName, fieldName);
+  if (mfield)
+    mfield->setNum(num);
+}
