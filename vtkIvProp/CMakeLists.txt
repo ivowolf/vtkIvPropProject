@@ -21,11 +21,29 @@ IF(DEBUG_POSTFIX)
   add_definitions(-D_DEBUG_POSTFIX)
 ENDIF(DEBUG_POSTFIX)
 
+#--------------------------------------------------------------------
+# Qt stuff
+#
+find_package(QT4 REQUIRED)
+SET(QT_USE_QTOPENGL ON)
+INCLUDE(${QT_USE_FILE})
+
 
 #--------------------------------------------------------------------
 #--------------------------------------------------------------------
 # Our stuff
 #
-ADD_EXECUTABLE(vtkIvPropDemo Cone.cxx vtkIvProp.h vtkIvProp.cpp 
+ADD_EXECUTABLE(vtkIvPropDemo
+  vtkIvProp.h vtkIvProp.cpp 
+  vtkIvPropConeDemo.cpp
+  nativeVtkIvPropDemoMain.cpp
   SoVTKRenderAction.h SoVTKRenderAction.cpp)
 TARGET_LINK_LIBRARIES(vtkIvPropDemo vtkRendering xipivcored xipivcoregld)
+
+ADD_EXECUTABLE(qVtkIvPropDemo
+  vtkIvProp.h vtkIvProp.cpp 
+  vtkIvPropConeDemo.cpp
+  qVtkIvPropDemoMain.cpp
+  SoVTKRenderAction.h SoVTKRenderAction.cpp)
+#TARGET_LINK_LIBRARIES(SimpleXIP ${QT_LIBRARIES} ${QT_QTOPENGL_LIBRARY} optimized xipcommon debug xipcommond optimized xipivcore debug xipivcored)
+TARGET_LINK_LIBRARIES(qVtkIvPropDemo ${QT_LIBRARIES} ${QT_QTOPENGL_LIBRARY} vtkRendering QVTK xipivcored xipivcoregld)

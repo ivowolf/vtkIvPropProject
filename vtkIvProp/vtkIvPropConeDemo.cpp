@@ -1,33 +1,14 @@
-/*=========================================================================
+#include "vtkIvPropConeDemo.h"
 
-  Program:   Visualization Toolkit
-  Module:    $RCSfile: Cone.cxx,v $
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-//
-// This example creates a polygonal model of a cone, and then renders it to
-// the screen. It will rotate the cone 360 degrees and then exit. The basic
-// setup of source -> mapper -> actor -> renderer -> renderwindow is 
-// typical of most VTK programs.
-//
-
-// First include the required header files for the VTK classes we are using.
 #include "vtkConeSource.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderWindow.h"
 #include "vtkCamera.h"
 #include "vtkActor.h"
-#include "vtkRenderer.h"
 #include "vtkProperty.h"
 
+#include "vtkRenderer.h"
+#include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkInteractorStyleTrackballCamera.h"
 
@@ -44,9 +25,10 @@ bool loadIvFile(const char* ivFileName, SoSeparator* root);
 
 bool loadIVExtensions(const std::vector<std::string>& extensions );
 
-
-int main()
+bool setupConeDemo(vtkRenderer* renderer)
 {
+  vtkRenderWindow* renderwindow = renderer->GetRenderWindow();
+  vtkRenderWindowInteractor* iren = renderwindow->GetInteractor();
   // 
   // Next we create an instance of vtkConeSource and set some of its
   // properties. The instance of vtkConeSource "cone" is part of a
@@ -79,8 +61,6 @@ int main()
   vtkActor *coneActor = vtkActor::New();
   coneActor->SetMapper( coneMapper );
   coneActor->GetProperty()->SetOpacity(1.0);
-
-
 
 
 
@@ -128,56 +108,21 @@ int main()
   // responsible for drawing the actors it has.  We also set the background
   // color here.
   //
-  vtkRenderer *ren1= vtkRenderer::New();
-  ren1->AddActor( coneActor );
-  ren1->AddActor( ivProp );
+  renderer->AddActor( coneActor );  renderer->AddActor( ivProp );
   //ren1->SetBackground( 0.1, 0.2, 0.4 );
-  ren1->SetBackground( 0.0, 0.0, 0.0);
+  renderer->SetBackground( 0.0, 0.0, 0.0);
   
   //
   // Finally we create the render window which will show up on the screen.
   // We put our renderer into the render window using AddRenderer. We also
   // set the size to be 300 pixels by 300.
   //
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
-  renWin->AlphaBitPlanesOn();
-  //renWin->SetStencilCapable(1) ;
-  renWin->SetSize( 512, 512 );
+  renderwindow->AlphaBitPlanesOn();  //renWin->SetStencilCapable(1) ;
 
-
-  renWin->AddRenderer( ren1 );
-
-  // 
-  // The vtkRenderWindowInteractor class watches for events (e.g., keypress,
-  // mouse) in the vtkRenderWindow. These events are translated into
-  // event invocations that VTK understands (see VTK/Common/vtkCommand.h
-  // for all events that VTK processes). Then observers of these VTK
-  // events can process them as appropriate.
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
-  iren->SetRenderWindow(renWin);
-
-  //
-  // By default the vtkRenderWindowInteractor instantiates an instance
-  // of vtkInteractorStyle. vtkInteractorStyle translates a set of events
-  // it observes into operations on the camera, actors, and/or properties
-  // in the vtkRenderWindow associated with the vtkRenderWinodwInteractor. 
-  // Here we specify a particular interactor style.
-  vtkInteractorStyleTrackballCamera *style = 
-    vtkInteractorStyleTrackballCamera::New();
   iren->SetInteractorStyle(NULL);
   
-  //
-  // Unlike the previous scripts where we performed some operations and then
-  // exited, here we leave an event loop running. The user can use the mouse
-  // and keyboard to perform the operations on the scene according to the
-  // current interaction style. When the user presses the "e" key, by default
-  // an ExitEvent is invoked by the vtkRenderWindowInteractor which is caught
-  // and drops out of the event loop (triggered by the Start() method that
-  // follows.
-  //
   iren->Initialize();
   ivProp->SetInteractor(iren);
-  iren->Start();
   
   //
   // Free up any objects we created. All instances in VTK are deleted by
@@ -186,15 +131,13 @@ int main()
   cone->Delete();
   coneMapper->Delete();
   coneActor->Delete();
-  ren1->Delete();
-  renWin->Delete();
 
-  return 0;
+  return true;
 }
 
 #include <stdio.h>
 #include <string>
- #include <Inventor/SoInput.h>
+#include <Inventor/SoInput.h>
 
 
 bool loadIvFile(const char * ivFileName, SoSeparator* root)
